@@ -1,0 +1,32 @@
+{
+  "name": "javascript-compare-frameworks",
+  "private": true,
+  "description": "One app, six frameworks: React, Vue, Svelte, Solid, Angular and Astro built to the same spec and measured side by side.",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "site"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:react": "npm run dev -w @compare/react",
+    "dev:vue": "npm run dev -w @compare/vue",
+    "dev:svelte": "npm run dev -w @compare/svelte",
+    "dev:solid": "npm run dev -w @compare/solid",
+    "dev:angular": "npm run dev -w @compare/angular",
+    "dev:astro": "npm run dev -w @compare/astro",
+    "dev:site": "npm run dev -w @compare/site",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs",
+    "test": "npm test -w @compare/core",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

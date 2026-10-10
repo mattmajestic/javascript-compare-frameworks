@@ -1,0 +1,46 @@
+<div class="app" [attr.data-theme]="selected().theme" data-framework="angular">
+  <header class="topbar">
+    <span class="badge"><span class="badge-dot"></span>Angular</span>
+    <a class="source-link" [href]="sourceUrl" target="_blank" rel="noreferrer">View source ↗</a>
+  </header>
+
+  <main class="layout">
+    <app-countdown [event]="selected()" [now]="now()" />
+
+    <aside class="sidebar">
+      <section class="panel">
+        <h2 class="panel-title">Upcoming</h2>
+        <!-- #region list -->
+        <ul class="event-list">
+          @for (event of events(); track event.id) {
+            <li class="event-item">
+              <button
+                type="button"
+                class="event"
+                [attr.aria-pressed]="event.id === selected().id"
+                (click)="selectedId.set(event.id)"
+              >
+                <span class="event-emoji" aria-hidden="true">{{ event.emoji }}</span>
+                <span class="event-name">{{ event.name }}</span>
+                <span class="event-days">{{ daysLabel(event.date, now()) }}</span>
+              </button>
+              @if (event.custom) {
+                <button
+                  type="button"
+                  class="event-remove"
+                  [attr.aria-label]="'Remove ' + event.name"
+                  (click)="removeEvent(event.id)"
+                >
+                  ×
+                </button>
+              }
+            </li>
+          }
+        </ul>
+        <!-- #endregion -->
+      </section>
+
+      <app-add-event-form (add)="addEvent($event)" />
+    </aside>
+  </main>
+</div>

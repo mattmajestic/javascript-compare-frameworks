@@ -1,0 +1,17 @@
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-emoji" aria-hidden="true">{{ event().emoji }}</div>
+  <h1 class="hero-title" id="hero-title">{{ event().name }}</h1>
+  <p class="hero-date">{{ formatDate(event().date) }}</p>
+  @if (left().done) {
+    <p class="hero-done">🎉 It's here!</p>
+  } @else {
+    <div class="units" role="timer">
+      @for (unit of left().units; track unit.key) {
+        <div class="unit" [attr.data-unit]="unit.key">
+          <span class="unit-value">{{ unit.value }}</span>
+          <span class="unit-label">{{ unit.label }}</span>
+        </div>
+      }
+    </div>
+  }
+</section>

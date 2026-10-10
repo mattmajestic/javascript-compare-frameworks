@@ -1,0 +1,230 @@
+{
+  "generatedAt": "2026-10-10T23:48:52.079Z",
+  "node": "v22.23.3",
+  "frameworks": {
+    "react": {
+      "version": "19.3.0",
+      "buildMs": 312,
+      "bundle": {
+        "js": {
+          "raw": 225387,
+          "gzip": 69896
+        },
+        "css": {
+          "raw": 6328,
+          "gzip": 2142
+        },
+        "html": {
+          "raw": 640,
+          "gzip": 411
+        }
+      },
+      "source": {
+        "files": [
+          "src/AddEventForm.tsx",
+          "src/App.tsx",
+          "src/Countdown.tsx",
+          "src/main.tsx"
+        ],
+        "lines": 146
+      },
+      "config": {
+        "files": [
+          "index.html",
+          "package.json",
+          "tsconfig.json",
+          "vite.config.ts"
+        ],
+        "lines": 50
+      }
+    },
+    "vue": {
+      "version": "3.5.43",
+      "buildMs": 462,
+      "bundle": {
+        "js": {
+          "raw": 69950,
+          "gzip": 27384
+        },
+        "css": {
+          "raw": 6328,
+          "gzip": 2142
+        },
+        "html": {
+          "raw": 635,
+          "gzip": 409
+        }
+      },
+      "source": {
+        "files": [
+          "src/AddEventForm.vue",
+          "src/App.vue",
+          "src/Countdown.vue",
+          "src/env.d.ts",
+          "src/main.ts"
+        ],
+        "lines": 125
+      },
+      "config": {
+        "files": [
+          "index.html",
+          "package.json",
+          "tsconfig.json",
+          "vite.config.ts"
+        ],
+        "lines": 45
+      }
+    },
+    "svelte": {
+      "version": "5.57.2",
+      "buildMs": 528,
+      "bundle": {
+        "js": {
+          "raw": 42729,
+          "gzip": 16699
+        },
+        "css": {
+          "raw": 6328,
+          "gzip": 2142
+        },
+        "html": {
+          "raw": 641,
+          "gzip": 410
+        }
+      },
+      "source": {
+        "files": [
+          "src/AddEventForm.svelte",
+          "src/App.svelte",
+          "src/Countdown.svelte",
+          "src/main.ts"
+        ],
+        "lines": 123
+      },
+      "config": {
+        "files": [
+          "index.html",
+          "package.json",
+          "svelte.config.js",
+          "tsconfig.json",
+          "vite.config.ts"
+        ],
+        "lines": 47
+      }
+    },
+    "solid": {
+      "version": "1.9.17",
+      "buildMs": 559,
+      "bundle": {
+        "js": {
+          "raw": 18715,
+          "gzip": 7459
+        },
+        "css": {
+          "raw": 6328,
+          "gzip": 2142
+        },
+        "html": {
+          "raw": 639,
+          "gzip": 408
+        }
+      },
+      "source": {
+        "files": [
+          "src/AddEventForm.tsx",
+          "src/App.tsx",
+          "src/Countdown.tsx",
+          "src/main.tsx"
+        ],
+        "lines": 144
+      },
+      "config": {
+        "files": [
+          "index.html",
+          "package.json",
+          "tsconfig.json",
+          "vite.config.ts"
+        ],
+        "lines": 48
+      }
+    },
+    "angular": {
+      "version": "22.2.2",
+      "buildMs": 1794,
+      "bundle": {
+        "js": {
+          "raw": 179464,
+          "gzip": 56850
+        },
+        "css": {
+          "raw": 6401,
+          "gzip": 2146
+        },
+        "html": {
+          "raw": 1878,
+          "gzip": 1008
+        }
+      },
+      "source": {
+        "files": [
+          "src/app/add-event-form.html",
+          "src/app/add-event-form.ts",
+          "src/app/app.config.ts",
+          "src/app/app.html",
+          "src/app/app.ts",
+          "src/app/countdown.html",
+          "src/app/countdown.ts",
+          "src/index.html",
+          "src/main.ts",
+          "src/styles.css"
+        ],
+        "lines": 167
+      },
+      "config": {
+        "files": [
+          "angular.json",
+          "package.json",
+          "tsconfig.app.json",
+          "tsconfig.json"
+        ],
+        "lines": 103
+      }
+    },
+    "astro": {
+      "version": "7.3.8",
+      "buildMs": 842,
+      "bundle": {
+        "js": {
+          "raw": 4140,
+          "gzip": 1903
+        },
+        "css": {
+          "raw": 6156,
+          "gzip": 2111
+        },
+        "html": {
+          "raw": 3820,
+          "gzip": 1253
+        }
+      },
+      "source": {
+        "files": [
+          "src/components/AddEventForm.astro",
+          "src/components/Countdown.astro",
+          "src/layouts/Layout.astro",
+          "src/pages/index.astro",
+          "src/scripts/countdown.ts"
+        ],
+        "lines": 198
+      },
+      "config": {
+        "files": [
+          "astro.config.mjs",
+          "package.json",
+          "tsconfig.json"
+        ],
+        "lines": 30
+      }
+    }
+  }
+}

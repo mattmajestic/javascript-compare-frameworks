@@ -1,0 +1,538 @@
+---
+import { FRAMEWORKS, REPO_URL, sourceUrl } from '@compare/core';
+import BarChart from '../components/BarChart.astro';
+import CodeCompare from '../components/CodeCompare.astro';
+import DemoCompare from '../components/DemoCompare.astro';
+import Layout from '../layouts/Layout.astro';
+import metrics from '../data/metrics.json';
+import { demoUrl, inlineCode, kB, seconds } from '../lib/format';
+
+type Metrics = (typeof metrics.frameworks)['react'];
+const rows = FRAMEWORKS.map((fw) => ({ ...fw, m: metrics.frameworks[fw.id] as Metrics }));
+
+const by = (pick: (m: Metrics) => number) => [...rows].sort((a, b) => pick(a.m) - pick(b.m));
+const smallestJs = by((m) => m.bundle.js.gzip)[0];
+const largestJs = by((m) => m.bundle.js.gzip).at(-1)!;
+const leastCode = by((m) => m.source.lines)[0];
+const mostConfig = by((m) => m.config.lines).at(-1)!;
+
+const highlights = [
+  { label: 'Smallest JS bundle', value: kB(smallestJs.m.bundle.js.gzip), fw: smallestJs },
+  { label: 'Largest JS bundle', value: kB(largestJs.m.bundle.js.gzip), fw: largestJs },
+  { label: 'Least app source', value: `${leastCode.m.source.lines} lines`, fw: leastCode },
+  { label: 'Most config', value: `${mostConfig.m.config.lines} lines`, fw: mostConfig },
+];
+
+const chart = (pick: (m: Metrics) => number, label: (v: number) => string, detail: (m: Metrics) => string) =>
+  rows.map(({ id, name, color, m }) => ({ id, name, color, value: pick(m), label: label(pick(m)), detail: detail(m) }));
+
+const features = [
+  { icon: '⏱️', title: 'Live countdown', body: 'Days, hours, minutes and seconds tick every second.', concept: 'Effects & cleanup' },
+  { icon: '🗓️', title: 'Correct holiday dates', body: 'Thanksgiving is the 4th Thursday of November, not a hard-coded day.', concept: 'Shared logic' },
+  { icon: '🧮', title: 'Soonest-first list', body: 'Holidays and your own events, merged and sorted on the fly.', concept: 'Derived state' },
+  { icon: '🎨', title: 'Themed selection', body: 'Picking an event switches the colour theme.', concept: 'Lists & events' },
+  { icon: '✍️', title: 'Add your own', body: 'A validated form for custom countdowns, with inline errors.', concept: 'Forms & binding' },
+  { icon: '💾', title: 'Persistence', body: 'Custom events survive reloads and are shared across every demo.', concept: 'Side effects' },
+];
+---
+
+<Layout>
+  <main id="top">
+    <section class="hero">
+      <div class="container">
+        <p class="eyebrow">JavaScript framework comparison</p>
+        <h1>One app. <span class="gradient">Six frameworks.</span></h1>
+        <p class="lede">
+          The same holiday countdown, built idiomatically in React, Vue, Svelte, Solid, Angular and Astro against a
+          single spec, with shared logic and shared styles. Every difference you see below comes from the framework
+          itself, and every number is measured from a real production build.
+        </p>
+        <div class="cta">
+          <a class="button primary" href="#demos">Try them side by side</a>
+          <a class="button" href={REPO_URL} target="_blank" rel="noreferrer">View on GitHub ↗</a>
+        </div>
+        <ul class="chips" aria-label="Frameworks and versions">
+          {
+            rows.map((fw) => (
+              <li style={`--fw: ${fw.color}`}>
+                <span class="fw-dot" />
+                {fw.name}
+                <span class="version">{fw.m.version}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <dl class="highlights">
+          {
+            highlights.map((h) => (
+              <div class="card stat" style={`--fw: ${h.fw.color}`}>
+                <dt>{h.label}</dt>
+                <dd class="stat-value">{h.value}</dd>
+                <dd class="stat-fw">
+                  <span class="fw-dot" />
+                  {h.fw.name}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="container">
+        <p class="eyebrow">The spec</p>
+        <h2 class="section-title">What every demo implements</h2>
+        <p class="lede">
+          A small app, chosen because it touches every core framework concept: state, derived values, timers that must be
+          cleaned up, keyed lists, child components, forms and persistence. The same Playwright suite runs against all six.
+        </p>
+        <ul class="features">
+          {
+            features.map((f) => (
+              <li class="card feature">
+                <span class="feature-icon" aria-hidden="true">
+                  {f.icon}
+                </span>
+                <h3>{f.title}</h3>
+                <p>{f.body}</p>
+                <span class="tag">{f.concept}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="block" id="demos">
+      <div class="container">
+        <p class="eyebrow">Live demos</p>
+        <h2 class="section-title">Side by side</h2>
+        <p class="lede">
+          Pick any two frameworks. They look identical because they share one stylesheet. Add a custom countdown in one
+          pane and reload the other: they share <code>localStorage</code> and a data model.
+        </p>
+        <DemoCompare />
+      </div>
+    </section>
+
+    <section class="block" id="metrics">
+      <div class="container">
+        <p class="eyebrow">Measured, not guessed</p>
+        <h2 class="section-title">The numbers</h2>
+        <p class="lede">
+          Generated by <code>scripts/build.mjs</code> from production builds. Line counts skip blank lines. The shared
+          core package is excluded from source counts but included in every bundle, so bundles compare like for like.
+        </p>
+        <div class="charts">
+          <BarChart
+            title="JavaScript shipped"
+            subtitle="Gzipped JS in the production build"
+            rows={chart(
+              (m) => m.bundle.js.gzip,
+              kB,
+              (m) => `${kB(m.bundle.js.raw)} before gzip`,
+            )}
+          />
+          <BarChart
+            title="App source"
+            subtitle="Non-blank lines in src/"
+            rows={chart(
+              (m) => m.source.lines,
+              (v) => `${v} lines`,
+              (m) => `${m.source.files.length} files`,
+            )}
+          />
+          <BarChart
+            title="Project config"
+            subtitle="Non-blank lines in project files outside src/"
+            rows={chart(
+              (m) => m.config.lines,
+              (v) => `${v} lines`,
+              (m) => m.config.files.join(', '),
+            )}
+          />
+          <BarChart
+            title="Production build"
+            subtitle="Wall-clock time, including tool start-up"
+            rows={chart(
+              (m) => m.buildMs,
+              seconds,
+              (m) => `${m.buildMs.toLocaleString('en-US')} ms`,
+            )}
+          />
+        </div>
+
+        <div class="card table-card">
+          <div class="table-wrap">
+            <table>
+              <caption class="visually-hidden">All measurements</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Framework</th>
+                  <th scope="col">Version</th>
+                  <th scope="col">JS (gzip)</th>
+                  <th scope="col">JS (raw)</th>
+                  <th scope="col">HTML + CSS (gzip)</th>
+                  <th scope="col">Source lines</th>
+                  <th scope="col">Source files</th>
+                  <th scope="col">Config lines</th>
+                  <th scope="col">Build</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  rows.map(({ name, color, m }) => (
+                    <tr>
+                      <th scope="row" style={`--fw: ${color}`}>
+                        <span class="row-name">
+                          <span class="fw-dot" />
+                          {name}
+                        </span>
+                      </th>
+                      <td>{m.version}</td>
+                      <td>{kB(m.bundle.js.gzip)}</td>
+                      <td>{kB(m.bundle.js.raw)}</td>
+                      <td>{kB(m.bundle.html.gzip + m.bundle.css.gzip)}</td>
+                      <td>{m.source.lines}</td>
+                      <td>{m.source.files.length}</td>
+                      <td>{m.config.lines}</td>
+                      <td>{seconds(m.buildMs)}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="note">
+          Last measured {new Date(metrics.generatedAt).toLocaleDateString('en-US', { dateStyle: 'medium' })} on
+          Node {metrics.node}. Build times vary by machine; treat them as relative.
+        </p>
+      </div>
+    </section>
+
+    <section class="block" id="code">
+      <div class="container">
+        <p class="eyebrow">Concept by concept</p>
+        <h2 class="section-title">The same idea, six ways</h2>
+        <p class="lede">
+          Snippets are extracted from the demo source at build time using <code>#region</code> markers, so they are
+          always the code that actually runs. Toggle frameworks to narrow the comparison.
+        </p>
+        <CodeCompare />
+      </div>
+    </section>
+
+    <section class="block" id="verdicts">
+      <div class="container">
+        <p class="eyebrow">Verdicts</p>
+        <h2 class="section-title">When to reach for each</h2>
+        <p class="lede">Opinions, but grounded in building the same thing six times.</p>
+        <div class="verdicts">
+          {
+            rows.map((fw) => (
+              <article class="card verdict" style={`--fw: ${fw.color}`}>
+                <header>
+                  <span class="fw-dot" />
+                  <h3>{fw.name}</h3>
+                  <span class="paradigm">{fw.paradigm}</span>
+                </header>
+                <p class="tagline">{fw.tagline}</p>
+                <ul class="pros">
+                  {fw.pros.map((p) => (
+                    <li set:html={inlineCode(p)} />
+                  ))}
+                </ul>
+                <ul class="cons">
+                  {fw.cons.map((c) => (
+                    <li set:html={inlineCode(c)} />
+                  ))}
+                </ul>
+                <p class="best">
+                  <strong>Best for:</strong> {fw.bestFor}
+                </p>
+                <footer>
+                  <a href={demoUrl(fw.id, fw.port)} target="_blank" rel="noreferrer">
+                    Open demo ↗
+                  </a>
+                  <a href={sourceUrl(fw.id)} target="_blank" rel="noreferrer">
+                    Source ↗
+                  </a>
+                </footer>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="how">
+      <div class="container">
+        <p class="eyebrow">Under the hood</p>
+        <h2 class="section-title">How the comparison stays fair</h2>
+        <div class="how">
+          <div class="card how-item">
+            <h3><code>packages/core</code></h3>
+            <p>
+              Date maths, validation, persistence and the design system live here once, with unit tests. Apps only contain
+              framework code.
+            </p>
+          </div>
+          <div class="card how-item">
+            <h3><code>apps/*</code></h3>
+            <p>
+              One folder per framework, each on its current major with official tooling: Vite for React, Vue, Svelte and
+              Solid, the Angular CLI, and Astro.
+            </p>
+          </div>
+          <div class="card how-item">
+            <h3><code>e2e/</code></h3>
+            <p>
+              One Playwright spec, run against every demo with a frozen clock. If a framework diverges from the spec, CI
+              fails.
+            </p>
+          </div>
+          <div class="card how-item">
+            <h3><code>scripts/build.mjs</code></h3>
+            <p>Builds everything, measures bundles and lines of code, and assembles this site with all demos embedded.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .hero {
+    padding-block: clamp(56px, 10vw, 112px) clamp(48px, 8vw, 80px);
+    background:
+      radial-gradient(50rem 30rem at 15% -10%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 65%),
+      radial-gradient(40rem 26rem at 95% 0%, color-mix(in oklab, var(--brand-2) 16%, transparent), transparent 65%);
+  }
+  h1 {
+    margin: 0 0 20px;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.02;
+  }
+  .gradient {
+    background: linear-gradient(110deg, var(--brand), var(--brand-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .button {
+    padding: 11px 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .button.primary {
+    border-color: transparent;
+    background: linear-gradient(110deg, var(--brand), var(--brand-2));
+    color: #fff;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 40px;
+    padding: 0;
+    list-style: none;
+  }
+  .chips li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .version {
+    color: var(--muted);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 0;
+  }
+  .stat {
+    padding: 18px 20px;
+  }
+  .stat dt {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .stat dd {
+    margin: 0;
+  }
+  .stat-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .stat-fw {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .feature {
+    padding: 20px;
+  }
+  .feature-icon {
+    font-size: 1.5rem;
+  }
+  .feature h3 {
+    margin: 8px 0 4px;
+    font-size: 1.0625rem;
+  }
+  .feature p {
+    margin: 0 0 12px;
+    color: var(--muted);
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--brand) 14%, transparent);
+    color: var(--brand);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .row-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .note {
+    margin: 12px 0 0;
+    color: var(--faint);
+    font-size: 0.8125rem;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .verdicts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 16px;
+  }
+  .verdict {
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    border-top: 3px solid var(--fw);
+  }
+  .verdict header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .verdict h3 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  .paradigm {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+  .tagline {
+    margin: 10px 0 14px;
+  }
+  .pros,
+  .cons {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9375rem;
+  }
+  .pros li::before,
+  .cons li::before {
+    display: inline-block;
+    width: 1.4em;
+    font-weight: 700;
+  }
+  .pros li::before {
+    content: '+';
+    color: #16a34a;
+  }
+  .cons li::before {
+    content: '−';
+    color: #dc2626;
+  }
+  .best {
+    margin: auto 0 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+  .best strong {
+    color: var(--text);
+  }
+  .verdict footer {
+    display: flex;
+    gap: 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .verdict footer a {
+    text-decoration: none;
+  }
+  .how {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 16px;
+  }
+  .how-item {
+    padding: 20px;
+  }
+  .how-item h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+  }
+  .how-item p {
+    margin: 0;
+    color: var(--muted);
+  }
+</style>

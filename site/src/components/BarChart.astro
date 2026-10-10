@@ -1,0 +1,140 @@
+---
+// Single-measure horizontal bar chart. One series, so one hue; framework
+// identity is carried by the text label (with a small dot beside it).
+interface Row {
+  id: string;
+  name: string;
+  color: string;
+  value: number;
+  label: string;
+  detail: string;
+}
+
+interface Props {
+  title: string;
+  subtitle: string;
+  rows: Row[];
+}
+
+const { title, subtitle, rows } = Astro.props;
+const sorted = [...rows].sort((a, b) => a.value - b.value);
+const max = Math.max(...sorted.map((r) => r.value));
+---
+
+<figure class="card chart">
+  <figcaption>
+    <h3>{title}</h3>
+    <p>{subtitle}</p>
+  </figcaption>
+  <ol class="rows">
+    {
+      sorted.map((row) => (
+        <li class="row" tabindex="0" style={`--fw: ${row.color}`} aria-label={`${row.name}: ${row.label}`}>
+          <span class="name">
+            <span class="fw-dot" />
+            {row.name}
+          </span>
+          <span class="track">
+            <span class="bar" style={`width: ${Math.max(1, (row.value / max) * 100)}%`} />
+            <span class="value">{row.label}</span>
+          </span>
+          <span class="tooltip" role="tooltip">
+            <strong>{row.label}</strong>
+            <span>{row.detail}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+</figure>
+
+<style>
+  .chart {
+    margin: 0;
+    padding: 20px 20px 16px;
+  }
+  figcaption h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  figcaption p {
+    margin: 2px 0 16px;
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 6px;
+    border-radius: 8px;
+    outline-offset: 0;
+  }
+  .row:hover,
+  .row:focus-visible {
+    background: var(--surface-2);
+  }
+  .name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    border-left: 1px solid var(--grid);
+  }
+  .bar {
+    height: 14px;
+    border-radius: 0 4px 4px 0;
+    background: var(--bar);
+    transition: filter 0.15s ease;
+  }
+  .row:hover .bar,
+  .row:focus-visible .bar {
+    filter: brightness(1.15);
+  }
+  .value {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .tooltip {
+    position: absolute;
+    right: 8px;
+    bottom: calc(100% + 4px);
+    z-index: 2;
+    display: grid;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+  }
+  .tooltip span {
+    color: var(--muted);
+  }
+  .row:hover .tooltip,
+  .row:focus-visible .tooltip {
+    opacity: 1;
+    transform: none;
+  }
+</style>
