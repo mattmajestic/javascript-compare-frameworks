@@ -1,0 +1,17 @@
+---
+import { NAME_MAX_LENGTH } from '@compare/core';
+---
+
+<form class="panel add-form" novalidate>
+  <h2 class="panel-title">Add a countdown</h2>
+  <label class="field">
+    <span>Name</span>
+    <input name="name" placeholder="Product launch" maxlength={NAME_MAX_LENGTH} />
+  </label>
+  <label class="field">
+    <span>Date</span>
+    <input type="date" name="date" />
+  </label>
+  <p class="form-error" role="alert" hidden></p>
+  <button type="submit" class="button">Add countdown</button>
+</form>

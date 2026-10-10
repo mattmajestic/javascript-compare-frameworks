@@ -1,0 +1,107 @@
+---
+import { FRAMEWORKS } from '@compare/core';
+import metrics from '../data/metrics.json';
+import { demoUrl, kB } from '../lib/format';
+
+const panes = [
+  { side: 'left', initial: 'react' },
+  { side: 'right', initial: 'svelte' },
+];
+
+const stats = (id: string) => {
+  const m = metrics.frameworks[id as keyof typeof metrics.frameworks];
+  return `${kB(m.bundle.js.gzip)} JS · ${m.source.lines} lines of source · v${m.version}`;
+};
+---
+
+<div class="compare">
+  {
+    panes.map(({ side, initial }) => (
+      <div class="pane card" data-pane={side}>
+        <div class="segmented" role="group" aria-label={`Framework for the ${side} pane`}>
+          {FRAMEWORKS.map((fw) => (
+            <button
+              type="button"
+              style={`--fw: ${fw.color}`}
+              aria-pressed={fw.id === initial ? 'true' : 'false'}
+              data-src={demoUrl(fw.id, fw.port)}
+              data-stats={stats(fw.id)}
+              data-name={fw.name}
+            >
+              <span class="fw-dot" />
+              {fw.name}
+            </button>
+          ))}
+        </div>
+        <div class="frame">
+          <iframe
+            src={demoUrl(initial, FRAMEWORKS.find((f) => f.id === initial)!.port)}
+            title={`${FRAMEWORKS.find((f) => f.id === initial)!.name} demo`}
+            loading="lazy"
+          />
+        </div>
+        <p class="stats">{stats(initial)}</p>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  for (const pane of document.querySelectorAll<HTMLElement>('[data-pane]')) {
+    const iframe = pane.querySelector('iframe')!;
+    const statsLine = pane.querySelector('.stats')!;
+    const buttons = [...pane.querySelectorAll<HTMLButtonElement>('button[data-src]')];
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        for (const b of buttons) b.setAttribute('aria-pressed', String(b === button));
+        iframe.src = button.dataset.src!;
+        iframe.title = `${button.dataset.name} demo`;
+        statsLine.textContent = button.dataset.stats!;
+      });
+    }
+  }
+</script>
+
+<style>
+  .compare {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 960px) {
+    .compare {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .pane {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+    min-width: 0;
+  }
+  .pane .segmented {
+    gap: 2px;
+  }
+  .pane .segmented button {
+    padding: 5px 9px;
+    font-size: 0.8125rem;
+  }
+  .frame {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+  }
+  iframe {
+    display: block;
+    width: 100%;
+    height: 720px;
+    border: 0;
+  }
+  .stats {
+    margin: 0 4px 2px;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

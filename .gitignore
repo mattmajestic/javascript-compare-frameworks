@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.angular/
+out-tsc/
+test-results/
+playwright-report/
+.vercel/
+*.log
+.DS_Store

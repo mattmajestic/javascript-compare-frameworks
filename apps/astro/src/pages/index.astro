@@ -1,0 +1,59 @@
+---
+import { daysLabel, getHolidays, mergeEvents, sourceUrl } from '@compare/core';
+import AddEventForm from '../components/AddEventForm.astro';
+import Countdown from '../components/Countdown.astro';
+import Layout from '../layouts/Layout.astro';
+
+// Rendered to static HTML at build time; the script below takes over in the browser.
+const now = new Date();
+const events = mergeEvents(getHolidays(now), []);
+const selected = events[0];
+---
+
+<Layout>
+  <div class="app" data-theme={selected.theme} data-framework="astro">
+    <header class="topbar">
+      <span class="badge"><span class="badge-dot"></span>Astro</span>
+      <a class="source-link" href={sourceUrl('astro')} target="_blank" rel="noreferrer">View source ↗</a>
+    </header>
+
+    <main class="layout">
+      <Countdown event={selected} now={now} />
+
+      <aside class="sidebar">
+        <section class="panel">
+          <h2 class="panel-title">Upcoming</h2>
+          <ul class="event-list">
+            {
+              events.map((event) => (
+                <li class="event-item" data-id={event.id}>
+                  <button type="button" class="event" aria-pressed={event === selected ? "true" : "false"}>
+                    <span class="event-emoji" aria-hidden="true">{event.emoji}</span>
+                    <span class="event-name">{event.name}</span>
+                    <span class="event-days">{daysLabel(event.date, now)}</span>
+                  </button>
+                </li>
+              ))
+            }
+          </ul>
+          <template id="event-item">
+            <li class="event-item">
+              <button type="button" class="event" aria-pressed="false">
+                <span class="event-emoji" aria-hidden="true"></span>
+                <span class="event-name"></span>
+                <span class="event-days"></span>
+              </button>
+              <button type="button" class="event-remove">×</button>
+            </li>
+          </template>
+        </section>
+
+        <AddEventForm />
+      </aside>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  import '../scripts/countdown.ts';
+</script>
