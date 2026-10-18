@@ -168,12 +168,15 @@ const tiles = [
           ),
         );
       }
-      const updated = new Date(stats.generatedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-      status.textContent = `Updated ${updated}, refreshed every few minutes. Run a benchmark above to add your device.`;
+      const updated = new Date(stats.generatedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      status.textContent = `Updated ${updated}. Refreshes every 30 seconds, so run a benchmark above and watch your device show up.`;
     } catch {
       status.textContent = 'Live data is unavailable right now.';
     }
   }
 
+  // Poll while the tab is visible, so runs in the demos above show up live.
   load();
+  setInterval(() => document.visibilityState === 'visible' && load(), 30_000);
+  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && load());
 </script>

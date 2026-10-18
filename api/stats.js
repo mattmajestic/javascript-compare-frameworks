@@ -1,13 +1,14 @@
 // Vercel serverless function: GET /api/stats/
 // Aggregate numbers for the site's "Live from the demos" section. Only
 // counts and averages leave this function; event names are never read.
-// Cached at Vercel's edge, so Airtable sees at most one read per few minutes.
+// Cached briefly at Vercel's edge, so however many visitors poll it, Airtable
+// sees only a few reads a minute (its limit is 5 requests/second per base).
 
 import { BENCH_OPS, FRAMEWORKS } from '../packages/core/src/index.js';
 import { BENCH_FIELDS as B, BENCH_TABLE, EVENTS_FIELDS as E, EVENTS_TABLE, STATUS } from '../db/schema.mjs';
 import { config, json, listAll } from './_airtable.js';
 
-const CACHE = { 'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=3600' };
+const CACHE = { 'Cache-Control': 'public, max-age=0, s-maxage=30, stale-while-revalidate=30' };
 const idByName = new Map(FRAMEWORKS.map((f) => [f.name, f.id]));
 
 export async function GET() {

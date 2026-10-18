@@ -71,7 +71,7 @@ The demos write to an [Airtable](https://airtable.com) base, and the site's **Li
 
 ```
 demo (any framework) ──POST──▶ /api/events/, /api/bench/ ──▶ Airtable
-site Live section ◀──GET── /api/stats/ (counts + averages only, edge-cached ~5 min) ◀── Airtable
+site Live section ◀──GET── /api/stats/ (counts + averages only, edge-cached 30 s) ◀── Airtable
 ```
 
 How it fits together:

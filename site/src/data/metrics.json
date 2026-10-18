@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-18T17:48:22.355Z",
+  "generatedAt": "2026-10-18T17:53:24.964Z",
   "node": "v22.23.3",
   "frameworks": {
     "react": {
       "version": "19.3.0",
-      "buildMs": 305,
+      "buildMs": 319,
       "bundle": {
         "js": {
           "raw": 229624,
@@ -41,7 +41,7 @@
     },
     "vue": {
       "version": "3.5.43",
-      "buildMs": 454,
+      "buildMs": 436,
       "bundle": {
         "js": {
           "raw": 74140,
@@ -79,7 +79,7 @@
     },
     "svelte": {
       "version": "5.57.2",
-      "buildMs": 504,
+      "buildMs": 521,
       "bundle": {
         "js": {
           "raw": 47069,
@@ -117,7 +117,7 @@
     },
     "solid": {
       "version": "1.9.17",
-      "buildMs": 510,
+      "buildMs": 512,
       "bundle": {
         "js": {
           "raw": 29113,
@@ -154,7 +154,7 @@
     },
     "angular": {
       "version": "22.2.2",
-      "buildMs": 1738,
+      "buildMs": 1793,
       "bundle": {
         "js": {
           "raw": 184244,
@@ -198,7 +198,7 @@
     },
     "astro": {
       "version": "7.3.8",
-      "buildMs": 802,
+      "buildMs": 791,
       "bundle": {
         "js": {
           "raw": 7871,
