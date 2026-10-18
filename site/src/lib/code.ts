@@ -90,6 +90,15 @@ const FORM_FILES: Record<string, Source[]> = {
   astro: [{ file: 'src/components/AddEventForm.astro' }, { region: 'form' }],
 };
 
+const BENCH_FILES: Record<string, Source[]> = {
+  react: [{ file: 'src/Benchmark.tsx' }],
+  vue: [{ file: 'src/Benchmark.vue' }],
+  svelte: [{ file: 'src/Benchmark.svelte' }],
+  solid: [{ file: 'src/Benchmark.tsx' }],
+  angular: [{ file: 'src/app/benchmark.ts' }, { file: 'src/app/benchmark.html' }],
+  astro: [{ file: 'src/components/Benchmark.astro' }, { file: 'src/scripts/benchmark.ts' }],
+};
+
 export const CONCEPTS = [
   {
     id: 'state',
@@ -126,5 +135,12 @@ export const CONCEPTS = [
     title: 'Forms & binding',
     summary: 'A validated two-field form that reports errors and hands the new event to its parent.',
     sources: (app: string) => FORM_FILES[app],
+  },
+  {
+    id: 'bench',
+    title: 'Big lists',
+    summary:
+      'The benchmark panel: query rows, render up to 10,000 of them, and keep the clock tick from re-rendering them all.',
+    sources: (app: string) => BENCH_FILES[app],
   },
 ];

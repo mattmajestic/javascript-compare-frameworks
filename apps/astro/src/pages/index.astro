@@ -1,6 +1,7 @@
 ---
 import { daysLabel, getHolidays, mergeEvents, sourceUrl } from '@compare/core';
 import AddEventForm from '../components/AddEventForm.astro';
+import Benchmark from '../components/Benchmark.astro';
 import Countdown from '../components/Countdown.astro';
 import Layout from '../layouts/Layout.astro';
 
@@ -51,6 +52,8 @@ const selected = events[0];
         <AddEventForm />
       </aside>
     </main>
+
+    <Benchmark />
   </div>
 </Layout>
 

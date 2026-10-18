@@ -8,7 +8,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: 'http://localhost:5100',
+    baseURL: 'http://localhost:4173',
     timezoneId: 'America/New_York',
     locale: 'en-US',
     trace: 'retain-on-failure',
@@ -16,7 +16,7 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'node scripts/serve.mjs',
-    url: 'http://localhost:5100',
+    url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
   },
 });

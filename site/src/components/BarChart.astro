@@ -14,14 +14,18 @@ interface Props {
   title: string;
   subtitle: string;
   rows: Row[];
+  /** Hook for client scripts that fill the chart with live data (see the Community section). */
+  live?: string;
+  /** Sort direction. Ascending suits timings (lower is better), descending suits counts. */
+  order?: 'asc' | 'desc';
 }
 
-const { title, subtitle, rows } = Astro.props;
-const sorted = [...rows].sort((a, b) => a.value - b.value);
-const max = Math.max(...sorted.map((r) => r.value));
+const { title, subtitle, rows, live, order = 'asc' } = Astro.props;
+const sorted = [...rows].sort((a, b) => (order === 'asc' ? a.value - b.value : b.value - a.value));
+const max = Math.max(...sorted.map((r) => r.value)) || 1;
 ---
 
-<figure class="card chart">
+<figure class="card chart" data-live={live} data-order={order}>
   <figcaption>
     <h3>{title}</h3>
     <p>{subtitle}</p>
@@ -29,7 +33,7 @@ const max = Math.max(...sorted.map((r) => r.value));
   <ol class="rows">
     {
       sorted.map((row) => (
-        <li class="row" tabindex="0" style={`--fw: ${row.color}`} aria-label={`${row.name}: ${row.label}`}>
+        <li class="row" tabindex="0" data-fw={row.id} style={`--fw: ${row.color}`} aria-label={`${row.name}: ${row.label}`}>
           <span class="name">
             <span class="fw-dot" />
             {row.name}

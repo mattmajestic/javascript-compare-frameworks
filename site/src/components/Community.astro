@@ -1,0 +1,179 @@
+---
+// "Live from the demos": aggregate numbers read back from Airtable through
+// /api/stats/ at page load. Rendered with empty placeholders at build time,
+// then filled in by the script below, so the page works without the API.
+import { FRAMEWORKS } from '@compare/core';
+import AirtableMark from './AirtableMark.astro';
+import BarChart from './BarChart.astro';
+
+const placeholder = FRAMEWORKS.map(({ id, name, color }) => ({ id, name, color, value: 0, label: '—', detail: 'No data yet' }));
+
+const tiles = [
+  { key: 'added', label: 'Countdowns added' },
+  { key: 'active', label: 'Still counting down' },
+  { key: 'runs', label: 'Benchmark runs' },
+  { key: 'browser', label: 'Top browser' },
+];
+---
+
+<section class="block" id="live">
+  <div class="container">
+    <p class="eyebrow">Live from the demos</p>
+    <h2 class="section-title">What visitors are doing</h2>
+    <p class="lede">
+      Every countdown added and every benchmark run in the demos above is recorded. This section reads the totals
+      back, so the benchmark bars here come from visitors' real devices and browsers, not from one test machine. Event
+      names are never shown.
+    </p>
+
+    <dl class="tiles">
+      {
+        tiles.map((t) => (
+          <div class="card tile">
+            <dt>{t.label}</dt>
+            <dd class="tile-value" data-tile={t.key}>—</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <div class="charts">
+      <BarChart live="added" order="desc" title="Countdowns added, by demo" subtitle="Which demo visitors actually use" rows={placeholder} />
+      <BarChart live="load-10k" title="Real-world render, 10,000 rows" subtitle="Average across visitors (lower is better)" rows={placeholder} />
+      <BarChart live="load-1k" title="Real-world render, 1,000 rows" subtitle="Average across visitors (lower is better)" rows={placeholder} />
+      <BarChart live="update" title="Real-world update, every 10th row" subtitle="Average across visitors (lower is better)" rows={placeholder} />
+    </div>
+
+    <p class="note live-note">
+      <span data-live-status>Loading live data…</span>
+      <a class="powered" href="https://airtable.com" target="_blank" rel="noreferrer">
+        <AirtableMark />
+        Stored in Airtable
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 16px;
+    margin: 0 0 24px;
+  }
+  .tile {
+    padding: 18px 20px;
+  }
+  .tile dt {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .tile-value {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .live-note {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+  .powered {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--faint);
+    text-decoration: none;
+  }
+  .powered:hover {
+    color: var(--text);
+  }
+</style>
+
+<script>
+  import { FRAMEWORKS } from '@compare/core';
+
+  interface Cell {
+    runs: number;
+    renderMs: number;
+  }
+  interface Stats {
+    generatedAt: string;
+    events: { total: number; active: number; byFramework: Record<string, number> };
+    benchmarks: Record<string, Record<string, Cell | null>>;
+    runs: number;
+    browsers: Record<string, number>;
+  }
+
+  const status = document.querySelector<HTMLElement>('[data-live-status]')!;
+  const num = (n: number) => n.toLocaleString('en-US');
+  const plural = (n: number, word: string) => `${num(n)} ${word}${n === 1 ? '' : 's'}`;
+
+  function setTile(key: string, text: string) {
+    const el = document.querySelector(`[data-tile="${key}"]`);
+    if (el) el.textContent = text;
+  }
+
+  /** Update a BarChart rendered with placeholders: widths, labels, tooltips and order. */
+  function fillChart(live: string, values: Record<string, { value: number; label: string; detail: string } | null>) {
+    const chart = document.querySelector<HTMLElement>(`[data-live="${live}"]`);
+    if (!chart) return;
+    const list = chart.querySelector('ol')!;
+    const items = [...list.querySelectorAll<HTMLElement>('li[data-fw]')];
+    const max = Math.max(1, ...items.map((li) => values[li.dataset.fw!]?.value ?? 0));
+    const desc = chart.dataset.order === 'desc';
+    for (const li of items) {
+      const v = values[li.dataset.fw!];
+      const name = FRAMEWORKS.find((f) => f.id === li.dataset.fw)!.name;
+      const label = v?.label ?? '—';
+      li.querySelector<HTMLElement>('.bar')!.style.width = `${v ? Math.max(1, (v.value / max) * 100) : 1}%`;
+      li.querySelector('.value')!.textContent = label;
+      li.querySelector('.tooltip strong')!.textContent = label;
+      li.querySelector('.tooltip span')!.textContent = v?.detail ?? 'No runs yet';
+      li.setAttribute('aria-label', `${name}: ${label}`);
+    }
+    // Frameworks without data sink to the bottom either way.
+    const key = (li: HTMLElement) => values[li.dataset.fw!]?.value ?? (desc ? -1 : Infinity);
+    items.sort((a, b) => (desc ? key(b) - key(a) : key(a) - key(b))).forEach((li) => list.append(li));
+  }
+
+  async function load() {
+    try {
+      const res = await fetch('/api/stats/');
+      if (!res.ok) throw new Error(String(res.status));
+      const stats: Stats = await res.json();
+
+      setTile('added', num(stats.events.total));
+      setTile('active', num(stats.events.active));
+      setTile('runs', num(stats.runs));
+      setTile('browser', Object.entries(stats.browsers).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—');
+
+      fillChart(
+        'added',
+        Object.fromEntries(
+          Object.entries(stats.events.byFramework).map(([id, n]) => [id, { value: n, label: num(n), detail: plural(n, 'countdown') }]),
+        ),
+      );
+      for (const op of ['load-10k', 'load-1k', 'update']) {
+        fillChart(
+          op,
+          Object.fromEntries(
+            Object.entries(stats.benchmarks).map(([id, ops]) => {
+              const c = ops[op];
+              return [id, c && { value: c.renderMs, label: `${c.renderMs.toFixed(1)} ms`, detail: `average of ${plural(c.runs, 'run')}` }];
+            }),
+          ),
+        );
+      }
+      const updated = new Date(stats.generatedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      status.textContent = `Updated ${updated}, refreshed every few minutes. Run a benchmark above to add your device.`;
+    } catch {
+      status.textContent = 'Live data is unavailable right now.';
+    }
+  }
+
+  load();
+</script>

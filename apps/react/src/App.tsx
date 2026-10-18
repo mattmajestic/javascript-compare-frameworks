@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { daysLabel, getHolidays, loadCustomEvents, mergeEvents, saveCustomEvents, sourceUrl } from '@compare/core';
 import type { CountdownEvent } from '@compare/core';
 import { AddEventForm } from './AddEventForm';
+import { Benchmark } from './Benchmark';
 import { Countdown } from './Countdown';
 
 export function App() {
@@ -85,6 +86,8 @@ export function App() {
           <AddEventForm onAdd={addEvent} />
         </aside>
       </main>
+
+      <Benchmark />
     </div>
   );
 }

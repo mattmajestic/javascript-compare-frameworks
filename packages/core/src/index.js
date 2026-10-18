@@ -2,7 +2,10 @@
 // Keeping this out of the apps means each framework folder contains only
 // framework code, so line counts and bundle sizes compare like-for-like.
 
+import { currentFramework, post } from './sync.js';
+
 export { FRAMEWORKS, REPO_URL, getFramework, sourceUrl } from './frameworks.js';
+export { BENCH_OPS, benchData, benchSummary, queryRows, startRenderTimer, updateEvery10th } from './bench.js';
 
 const DAY = 86_400_000;
 const STORAGE_KEY = 'countdown:custom-events';
@@ -101,25 +104,56 @@ export function createCustomEvent(name, dateValue, now = new Date()) {
   return { ok: true, event: toEvent({ id, name: trimmed, date }) };
 }
 
+// Each page's last-known custom events, per storage. Demos side by side share
+// one localStorage but not memory, so a page diffs against its own baseline
+// rather than the storage, which another iframe may have changed since.
+const baselines = new WeakMap();
+
+function readRecords(storage) {
+  const records = JSON.parse(storage?.getItem(STORAGE_KEY) ?? '[]');
+  return Array.isArray(records)
+    ? records.filter((r) => typeof r?.id === 'string' && typeof r?.name === 'string' && parseISODate(r?.date))
+    : [];
+}
+
 /** Custom events are shared across demos served from the same origin. */
 export function loadCustomEvents(storage = globalThis.localStorage) {
   try {
-    const records = JSON.parse(storage?.getItem(STORAGE_KEY) ?? '[]');
-    if (!Array.isArray(records)) return [];
-    return records.flatMap((r) => {
-      const date = parseISODate(r?.date);
-      return typeof r?.id === 'string' && typeof r?.name === 'string' && date ? [toEvent({ ...r, date })] : [];
-    });
+    const records = readRecords(storage);
+    if (storage) baselines.set(storage, new Map(records.map((r) => [r.id, r])));
+    return records.map((r) => toEvent({ ...r, date: parseISODate(r.date) }));
   } catch {
     return [];
   }
 }
 
-export function saveCustomEvents(events, storage = globalThis.localStorage) {
+export function saveCustomEvents(events, storage = globalThis.localStorage, sync = syncToServer) {
   try {
+    if (!storage) return;
     const records = events.map(({ id, name, date }) => ({ id, name, date: toISODate(date) }));
-    storage?.setItem(STORAGE_KEY, JSON.stringify(records));
+    const before = baselines.get(storage) ?? new Map(readRecords(storage).map((r) => [r.id, r]));
+    const after = new Map(records.map((r) => [r.id, r]));
+    baselines.set(storage, after);
+
+    // Only this page's own adds and removes: not reloads, StrictMode double
+    // effects, or events another demo added in the meantime.
+    const removed = [...before.values()].filter((r) => !after.has(r.id));
+    const changes = [
+      ...records.filter((r) => !before.has(r.id)).map((r) => ({ ...r, status: 'active' })),
+      ...removed.map((r) => ({ ...r, status: 'deleted' })),
+    ];
+    if (changes.length) sync(changes);
+
+    // Merge rather than overwrite, so a stale page can't wipe another's events.
+    const removedIds = new Set(removed.map((r) => r.id));
+    const others = readRecords(storage).filter((r) => !removedIds.has(r.id) && !after.has(r.id));
+    storage.setItem(STORAGE_KEY, JSON.stringify([...others, ...records]));
   } catch {
     // Storage can be unavailable (private mode, quota); the app still works in memory.
   }
+}
+
+/** Send adds/removes to Airtable via /api/events. */
+function syncToServer(changes) {
+  post('events', { framework: currentFramework(), events: changes.slice(0, 10) });
 }

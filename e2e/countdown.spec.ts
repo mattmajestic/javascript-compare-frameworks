@@ -71,5 +71,28 @@ for (const fw of FRAMEWORKS) {
       await expect(page.locator('.event-name')).toHaveCount(5);
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Halloween');
     });
+
+    test('benchmark queries, updates and clears rows, reporting timings', async ({ page }) => {
+      const bench = page.locator('.bench');
+      const rows = bench.locator('.bench-table tbody tr');
+      const result = bench.locator('.bench-result');
+
+      await bench.getByRole('button', { name: 'Query 1,000 rows' }).click();
+      await expect(result).toHaveAttribute('data-op', 'load-1k');
+      await expect(result).toHaveText(/^1,000 rows · query \d+\.\d ms · render \d+\.\d ms$/);
+      await expect(rows).toHaveCount(1000);
+
+      const firstName = await rows.first().locator('.bench-name').textContent();
+      await bench.getByRole('button', { name: 'Update every 10th' }).click();
+      await expect(result).toHaveAttribute('data-op', 'update');
+      await expect(result).toHaveText(/^1,000 rows · render \d+\.\d ms$/);
+      await expect(rows.nth(0).locator('.bench-name')).toHaveText(`${firstName} ✓`);
+      await expect(rows.nth(1).locator('.bench-name')).not.toHaveText(/✓$/);
+      await expect(rows.nth(10).locator('.bench-name')).toHaveText(/✓$/);
+
+      await bench.getByRole('button', { name: 'Clear' }).click();
+      await expect(result).toHaveAttribute('data-op', 'clear');
+      await expect(rows).toHaveCount(0);
+    });
   });
 }

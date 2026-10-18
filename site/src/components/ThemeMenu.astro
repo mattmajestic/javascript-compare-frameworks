@@ -1,0 +1,262 @@
+---
+// Theme dropdown: System / Light / Dark. The choice is saved, applied before
+// first paint by the inline script in Layout.astro, and pushed into the
+// embedded demos (same origin in production, so their <html> can be styled).
+const OPTIONS = [
+  { mode: 'system', label: 'System' },
+  { mode: 'light', label: 'Light' },
+  { mode: 'dark', label: 'Dark' },
+] as const;
+---
+
+<div class="theme-menu" data-mode="system">
+  <button
+    type="button"
+    class="theme-trigger"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    aria-controls="theme-options"
+    aria-label="Color theme: System"
+  >
+    <span class="icons" aria-hidden="true">
+      <svg class="icon" data-icon="system" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M8 20h8M12 16v4" /></svg>
+      <svg class="icon" data-icon="light" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+      <svg class="icon" data-icon="dark" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" /></svg>
+    </span>
+    <span class="trigger-label">System</span>
+    <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+  </button>
+
+  <ul class="theme-options" id="theme-options" role="menu" aria-label="Color theme" hidden>
+    {
+      OPTIONS.map(({ mode, label }) => (
+        <li role="none">
+          <button type="button" role="menuitemradio" aria-checked={mode === 'system' ? 'true' : 'false'} data-mode={mode} tabindex="-1">
+            <span class="icons" aria-hidden="true">
+              <svg class="icon" data-icon="system" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M8 20h8M12 16v4" /></svg>
+              <svg class="icon" data-icon="light" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+              <svg class="icon" data-icon="dark" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" /></svg>
+            </span>
+            <span class="option-label">{label}</span>
+            <svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7" /></svg>
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script>
+  const KEY = 'color-scheme';
+  type Mode = 'system' | 'light' | 'dark';
+  const LABELS: Record<Mode, string> = { system: 'System', light: 'Light', dark: 'Dark' };
+
+  const menu = document.querySelector<HTMLElement>('.theme-menu')!;
+  const trigger = menu.querySelector<HTMLButtonElement>('.theme-trigger')!;
+  const list = menu.querySelector<HTMLUListElement>('.theme-options')!;
+  const items = [...list.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]')];
+
+  function readMode(): Mode {
+    try {
+      const saved = localStorage.getItem(KEY);
+      return saved === 'light' || saved === 'dark' ? saved : 'system';
+    } catch {
+      return 'system';
+    }
+  }
+
+  function applyTo(root: HTMLElement, mode: Mode) {
+    if (mode === 'system') delete root.dataset.colorScheme;
+    else root.dataset.colorScheme = mode;
+  }
+
+  function syncFrame(frame: HTMLIFrameElement, mode = readMode()) {
+    try {
+      const root = frame.contentDocument?.documentElement;
+      if (root) applyTo(root, mode);
+    } catch {
+      // Cross-origin in dev (each demo has its own port); the demo follows the OS there.
+    }
+  }
+
+  function apply(mode: Mode) {
+    applyTo(document.documentElement, mode);
+    menu.dataset.mode = mode;
+    menu.querySelector('.trigger-label')!.textContent = LABELS[mode];
+    trigger.setAttribute('aria-label', `Color theme: ${LABELS[mode]}`);
+    for (const item of items) item.setAttribute('aria-checked', String(item.dataset.mode === mode));
+    for (const frame of document.querySelectorAll('iframe')) syncFrame(frame, mode);
+  }
+
+  function choose(mode: Mode) {
+    try {
+      if (mode === 'system') localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, mode);
+    } catch {
+      // Storage unavailable: the choice still applies for this page view.
+    }
+    apply(mode);
+  }
+
+  function open(focus: 'checked' | 'first' | 'last' = 'checked') {
+    list.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    const target =
+      focus === 'first' ? items[0] : focus === 'last' ? items.at(-1)! : items.find((i) => i.getAttribute('aria-checked') === 'true')!;
+    target.focus();
+  }
+
+  function close({ returnFocus = true } = {}) {
+    if (list.hidden) return;
+    list.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    if (returnFocus) trigger.focus();
+  }
+
+  trigger.addEventListener('click', () => (list.hidden ? open() : close()));
+  trigger.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      open(e.key === 'ArrowDown' ? 'first' : 'last');
+    }
+  });
+
+  items.forEach((item, i) => {
+    item.addEventListener('click', () => {
+      choose(item.dataset.mode as Mode);
+      close();
+    });
+    item.addEventListener('keydown', (e) => {
+      const move = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: items.length - 1 }[e.key];
+      if (move !== undefined) {
+        e.preventDefault();
+        items[(move + items.length) % items.length].focus();
+      } else if (e.key === 'Escape') {
+        close();
+      } else if (e.key === 'Tab') {
+        close({ returnFocus: false });
+      }
+    });
+  });
+
+  document.addEventListener('pointerdown', (e) => {
+    if (!menu.contains(e.target as Node)) close({ returnFocus: false });
+  });
+
+  // `load` doesn't bubble, but it can be captured; this catches lazy iframes and src swaps.
+  document.addEventListener(
+    'load',
+    (e) => {
+      if (e.target instanceof HTMLIFrameElement) syncFrame(e.target);
+    },
+    true,
+  );
+
+  apply(readMode());
+</script>
+
+<style>
+  .theme-menu {
+    position: relative;
+    flex: none;
+  }
+  .theme-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .theme-trigger:hover,
+  .theme-trigger[aria-expanded='true'] {
+    color: var(--text);
+  }
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .chevron {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.15s ease;
+  }
+  .theme-trigger[aria-expanded='true'] .chevron {
+    transform: rotate(180deg);
+  }
+  .icons {
+    display: inline-flex;
+  }
+  .icon {
+    display: none;
+  }
+  /* The trigger shows the current mode's icon; each option shows its own. */
+  .theme-menu[data-mode='system'] .theme-trigger [data-icon='system'],
+  .theme-menu[data-mode='light'] .theme-trigger [data-icon='light'],
+  .theme-menu[data-mode='dark'] .theme-trigger [data-icon='dark'],
+  [data-mode='system'] > .icons [data-icon='system'],
+  [data-mode='light'] > .icons [data-icon='light'],
+  [data-mode='dark'] > .icons [data-icon='dark'] {
+    display: block;
+  }
+  .theme-options {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 20;
+    min-width: 160px;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    list-style: none;
+  }
+  [role='menuitemradio'] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.875rem;
+    text-align: left;
+    cursor: pointer;
+  }
+  [role='menuitemradio']:hover,
+  [role='menuitemradio']:focus-visible {
+    background: var(--surface-2);
+    outline: none;
+  }
+  .option-label {
+    flex: 1;
+  }
+  .check {
+    visibility: hidden;
+    color: var(--brand);
+  }
+  [aria-checked='true'] .check {
+    visibility: visible;
+  }
+  @media (max-width: 640px) {
+    .trigger-label {
+      display: none;
+    }
+  }
+</style>

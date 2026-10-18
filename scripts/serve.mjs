@@ -7,7 +7,8 @@ import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dist = join(dirname(fileURLToPath(import.meta.url)), '..', 'site', 'dist');
-const port = Number(process.env.PORT ?? 5100);
+// Not 5100: that is the site's dev server, which may be running at the same time.
+const port = Number(process.env.PORT ?? 4173);
 
 const types = {
   '.html': 'text/html; charset=utf-8',

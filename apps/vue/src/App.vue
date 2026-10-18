@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { daysLabel, getHolidays, loadCustomEvents, mergeEvents, saveCustomEvents, sourceUrl } from '@compare/core';
 import type { CountdownEvent } from '@compare/core';
 import AddEventForm from './AddEventForm.vue';
+import Benchmark from './Benchmark.vue';
 import Countdown from './Countdown.vue';
 
 // #region state
@@ -77,5 +78,7 @@ function removeEvent(id: string) {
         <AddEventForm @add="addEvent" />
       </aside>
     </main>
+
+    <Benchmark />
   </div>
 </template>

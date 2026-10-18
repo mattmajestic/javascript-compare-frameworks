@@ -2,6 +2,7 @@
 import { Code } from 'astro:components';
 import { FRAMEWORKS, sourceUrl } from '@compare/core';
 import { CONCEPTS, getSnippets } from '../lib/code';
+import GitHubMark from './GitHubMark.astro';
 
 const concepts = CONCEPTS.map((concept) => ({
   ...concept,
@@ -54,8 +55,8 @@ const concepts = CONCEPTS.map((concept) => ({
                 <span class="fw-dot" />
                 <strong>{fw.name}</strong>
                 <span class="lines">{lines} lines</span>
-                <a href={sourceUrl(fw.id)} target="_blank" rel="noreferrer" aria-label={`${fw.name} source on GitHub`}>
-                  ↗
+                <a href={sourceUrl(fw.id)} target="_blank" rel="noreferrer" aria-label={`${fw.name} source on GitHub`} title={`${fw.name} source on GitHub`}>
+                  <GitHubMark size={15} />
                 </a>
               </header>
               {snippets.map((s) => (

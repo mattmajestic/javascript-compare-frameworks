@@ -32,5 +32,6 @@ function handleSubmit() {
     </label>
     <p v-if="error" class="form-error" role="alert">{{ error }}</p>
     <button type="submit" class="button">Add countdown</button>
+    <p class="form-note"><span class="airtable-mark" aria-hidden="true"></span>Synced to Airtable</p>
   </form>
 </template>

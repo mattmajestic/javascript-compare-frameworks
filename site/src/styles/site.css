@@ -18,8 +18,10 @@
   --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 }
 
+/* Dark palette: follows the OS unless the theme toggle sets data-color-scheme. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-color-scheme='light']) {
+    color-scheme: dark;
     --bg: #0b0d14;
     --surface: #11131c;
     --surface-2: #171a26;
@@ -34,11 +36,35 @@
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
   }
 
-  .astro-code,
-  .astro-code span {
+  :root:not([data-color-scheme='light']) :is(.astro-code, .astro-code span) {
     color: var(--shiki-dark) !important;
     background-color: var(--shiki-dark-bg) !important;
   }
+}
+
+:root[data-color-scheme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0d14;
+  --surface: #11131c;
+  --surface-2: #171a26;
+  --border: rgb(255 255 255 / 0.08);
+  --text: #eef1f7;
+  --muted: #9aa3b5;
+  --faint: #6b7385;
+  --brand: #8b8ff7;
+  --brand-2: #d77cf5;
+  --bar: #7a80f0;
+  --grid: rgb(255 255 255 / 0.07);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
+}
+
+:root[data-color-scheme='dark'] :is(.astro-code, .astro-code span) {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+:root[data-color-scheme='light'] {
+  color-scheme: light;
 }
 
 *,
@@ -201,4 +227,18 @@ td {
 
 tbody tr:last-child td {
   border-bottom: 0;
+}
+
+/* Shared by the page and the Community component. */
+.charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.note {
+  margin: 12px 0 0;
+  color: var(--faint);
+  font-size: 0.8125rem;
 }

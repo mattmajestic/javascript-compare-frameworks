@@ -33,4 +33,5 @@
     <p class="form-error" role="alert">{error}</p>
   {/if}
   <button type="submit" class="button">Add countdown</button>
+  <p class="form-note"><span class="airtable-mark" aria-hidden="true"></span>Synced to Airtable</p>
 </form>

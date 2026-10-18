@@ -10,7 +10,8 @@ Everything the demos share, so each app folder contains only framework code.
 | `daysLabel(date, now)` | `"Today"`, `"Tomorrow"`, `"21 days"` |
 | `formatDate(date)` | `"Saturday, October 31, 2026"` |
 | `createCustomEvent(name, isoDate)` | Validates form input and returns `{ ok: true, event }` or `{ ok: false, error }` |
-| `loadCustomEvents()` / `saveCustomEvents(events)` | `localStorage` persistence that tolerates bad data and missing storage |
+| `loadCustomEvents()` / `saveCustomEvents(events)` | `localStorage` persistence that tolerates bad data and missing storage. Saves also sync this page's own adds and removes to Airtable via `/api/events/` |
+| `benchData(op, rows)`, `startRenderTimer()`, `benchSummary(result)` | The query & render benchmark: mock-API data, paint-aware timing, result text. Runs are reported to `/api/bench/` (skipped in automated browsers) |
 | `FRAMEWORKS`, `sourceUrl(id)` | Framework metadata used by the demos, site, build script and e2e suite |
 | `@compare/core/styles.css` | The design system |
 
@@ -62,8 +63,37 @@ Every demo renders this structure, which the stylesheet and the e2e suite rely o
         <label class="field"><span>Date</span><input type="date" name="date" /></label>
         <p class="form-error" role="alert">{error}</p>             <!-- (if error) -->
         <button type="submit" class="button">Add countdown</button>
+        <p class="form-note"><span class="airtable-mark" aria-hidden="true"></span>Synced to Airtable</p>
       </form>
     </aside>
   </main>
 </div>
+```
+
+### Benchmark panel
+
+Rendered after `</main>`, inside `.app`. Use `benchData(op, rows)` for the data and wrap the state change in `startRenderTimer()` so every framework is timed the same way.
+
+```html
+<section class="panel bench" aria-labelledby="bench-title">
+  <div class="bench-header">
+    <h2 class="panel-title" id="bench-title">Query &amp; render benchmark</h2>
+    <p class="bench-result" data-op="{last op}">{benchSummary(result)}</p>
+  </div>
+  <div class="bench-actions">
+    <button type="button" class="bench-button">{label}</button>   <!-- one per BENCH_OPS entry -->
+  </div>
+  <div class="bench-table-wrap">
+    <table class="bench-table" aria-label="Query results">
+      <tbody>
+        <tr>                                                       <!-- keyed by row.id -->
+          <td class="bench-id">{id}</td>
+          <td class="bench-emoji">{emoji}</td>
+          <td class="bench-name">{name}</td>
+          <td class="bench-date">{date}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 ```

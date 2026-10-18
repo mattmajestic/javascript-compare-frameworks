@@ -2,11 +2,12 @@ import { Component, computed, DestroyRef, effect, inject, signal } from '@angula
 import { daysLabel, getHolidays, loadCustomEvents, mergeEvents, saveCustomEvents, sourceUrl } from '@compare/core';
 import type { CountdownEvent } from '@compare/core';
 import { AddEventForm } from './add-event-form';
+import { Benchmark } from './benchmark';
 import { Countdown } from './countdown';
 
 @Component({
   selector: 'app-root',
-  imports: [Countdown, AddEventForm],
+  imports: [Countdown, AddEventForm, Benchmark],
   templateUrl: './app.html',
 })
 export class App {

@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-10-11T14:06:06.672Z",
+  "browser": "Chromium 156.0.8078.4",
+  "iterations": 10,
+  "frameworks": {
+    "react": {
+      "load-1k": {
+        "renderMs": 45.55,
+        "queryMs": 14.8
+      },
+      "load-10k": {
+        "renderMs": 422.8,
+        "queryMs": 17.45
+      },
+      "update": {
+        "renderMs": 48.599999999999994,
+        "queryMs": null
+      },
+      "clear": {
+        "renderMs": 50.05,
+        "queryMs": null
+      }
+    },
+    "vue": {
+      "load-1k": {
+        "renderMs": 46.65,
+        "queryMs": 6.9
+      },
+      "load-10k": {
+        "renderMs": 328.3,
+        "queryMs": 17.3
+      },
+      "update": {
+        "renderMs": 48.15,
+        "queryMs": null
+      },
+      "clear": {
+        "renderMs": 37,
+        "queryMs": null
+      }
+    },
+    "svelte": {
+      "load-1k": {
+        "renderMs": 48,
+        "queryMs": 15.95
+      },
+      "load-10k": {
+        "renderMs": 336,
+        "queryMs": 16.9
+      },
+      "update": {
+        "renderMs": 39.55,
+        "queryMs": null
+      },
+      "clear": {
+        "renderMs": 24.3,
+        "queryMs": null
+      }
+    },
+    "solid": {
+      "load-1k": {
+        "renderMs": 47,
+        "queryMs": 13.3
+      },
+      "load-10k": {
+        "renderMs": 368.85,
+        "queryMs": 17.65
+      },
+      "update": {
+        "renderMs": 47.3,
+        "queryMs": null
+      },
+      "clear": {
+        "renderMs": 27.6,
+        "queryMs": null
+      }
+    },
+    "angular": {
+      "load-1k": {
+        "renderMs": 47.900000000000006,
+        "queryMs": 16.35
+      },
+      "load-10k": {
+        "renderMs": 347.95,
+        "queryMs": 22.25
+      },
+      "update": {
+        "renderMs": 52.05,
+        "queryMs": null
+      },
+      "clear": {
+        "renderMs": 55.45,
+        "queryMs": null
+      }
+    },
+    "astro": {
+      "load-1k": {
+        "renderMs": 49.099999999999994,
+        "queryMs": 4.7
+      },
+      "load-10k": {
+        "renderMs": 306.45,
+        "queryMs": 16.799999999999997
+      },
+      "update": {
+        "renderMs": 41.400000000000006,
+        "queryMs": null
+      },
+      "clear": {
+        "renderMs": 23.65,
+        "queryMs": null
+      }
+    }
+  }
+}

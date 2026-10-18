@@ -2,6 +2,7 @@
   import { daysLabel, getHolidays, loadCustomEvents, mergeEvents, saveCustomEvents, sourceUrl } from '@compare/core';
   import type { CountdownEvent } from '@compare/core';
   import AddEventForm from './AddEventForm.svelte';
+  import Benchmark from './Benchmark.svelte';
   import Countdown from './Countdown.svelte';
 
   // #region state
@@ -79,4 +80,6 @@
       <AddEventForm onadd={addEvent} />
     </aside>
   </main>
+
+  <Benchmark />
 </div>

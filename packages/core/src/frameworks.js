@@ -49,7 +49,7 @@ export const FRAMEWORKS = [
     port: 5104,
     paradigm: 'Fine-grained signals + JSX',
     tagline: 'React-like JSX, but components run once and signals update the DOM directly.',
-    pros: ['Fastest updates: only the changed text node re-renders', 'Tiny bundle', 'Familiar JSX'],
+    pros: ['Fine-grained updates: only the changed text node re-renders', 'Smallest framework bundle here', 'Familiar JSX'],
     cons: ['Destructuring props breaks reactivity', 'Smaller community'],
     bestFor: 'Performance-sensitive UIs from developers who like JSX.',
   },

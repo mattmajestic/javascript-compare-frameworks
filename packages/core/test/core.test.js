@@ -90,3 +90,62 @@ test('custom events round-trip through storage and ignore bad data', () => {
   assert.equal(loadCustomEvents(storage).length, 1);
   assert.deepEqual(loadCustomEvents(undefined), []);
 });
+
+test('benchmark: queries deterministic rows with fresh ids, then updates and clears', async () => {
+  const { benchData, benchSummary, updateEvery10th } = await import('../src/bench.js');
+  const first = await benchData('load-1k', []);
+  const again = await benchData('load-1k', []);
+  assert.equal(first.rows.length, 1000);
+  assert.equal(typeof first.queryMs, 'number');
+  assert.deepEqual(first.rows.map((r) => r.emoji), again.rows.map((r) => r.emoji));
+  assert.notEqual(first.rows[0].id, again.rows[0].id);
+  assert.match(first.rows[0].date, /^[A-Z][a-z]{2} \d{1,2}, \d{4}$/);
+
+  const updated = updateEvery10th(first.rows);
+  assert.ok(updated[0].name.endsWith(' ✓'));
+  assert.equal(updated[1], first.rows[1]);
+  assert.equal(updated.filter((r, i) => r !== first.rows[i]).length, 100);
+
+  assert.deepEqual(await benchData('clear', first.rows), { rows: [], queryMs: null });
+  assert.equal(benchSummary({ op: 'update', rows: 1000, queryMs: null, renderMs: 12.34 }), '1,000 rows · render 12.3 ms');
+});
+
+test('custom events: only real adds and removes are synced', () => {
+  const storage = memoryStorage();
+  const calls = [];
+  const sync = (changes) => calls.push(changes);
+  const a = createCustomEvent('A', '2099-01-01').event;
+  const b = createCustomEvent('B', '2099-02-01').event;
+
+  saveCustomEvents([], storage, sync);
+  saveCustomEvents([a], storage, sync);
+  saveCustomEvents([a], storage, sync); // re-save (reload, StrictMode) → nothing
+  saveCustomEvents([a, b], storage, sync);
+  saveCustomEvents([b], storage, sync);
+
+  assert.deepEqual(
+    calls.map((c) => c.map((e) => `${e.status}:${e.name}`)),
+    [['active:A'], ['active:B'], ['deleted:A']],
+  );
+  assert.equal(calls[2][0].date, '2099-01-01');
+});
+
+test('custom events: side-by-side demos sharing storage only sync their own changes', () => {
+  // Two iframes: separate JS realms (so separate baselines), one localStorage.
+  const shared = memoryStorage();
+  const pageView = () => ({ getItem: shared.getItem, setItem: shared.setItem });
+  const svelteStorage = pageView();
+  const solidStorage = pageView();
+  const svelte = [];
+  const solid = [];
+  const log = (calls) => calls.map((c) => c.map((e) => `${e.status}:${e.name}`));
+
+  loadCustomEvents(svelteStorage);
+  loadCustomEvents(solidStorage); // Solid's list is now stale once Svelte adds.
+  saveCustomEvents([createCustomEvent('From Svelte', '2099-01-01').event], svelteStorage, (c) => svelte.push(c));
+  saveCustomEvents([createCustomEvent('From Solid', '2099-02-01').event], solidStorage, (c) => solid.push(c));
+
+  assert.deepEqual(log(svelte), [['active:From Svelte']]);
+  assert.deepEqual(log(solid), [['active:From Solid']]); // No bogus "deleted: From Svelte".
+  assert.deepEqual(loadCustomEvents(shared).map((e) => e.name).sort(), ['From Solid', 'From Svelte']);
+});

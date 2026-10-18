@@ -1,0 +1,28 @@
+---
+import { BENCH_OPS, benchSummary } from '@compare/core';
+---
+
+<section class="panel bench" aria-labelledby="bench-title">
+  <div class="bench-header">
+    <h2 class="panel-title" id="bench-title">Query &amp; render benchmark</h2>
+    <p class="bench-result">{benchSummary(null)}</p>
+  </div>
+  <div class="bench-actions">
+    {
+      BENCH_OPS.map(({ op, label }) => (
+        <button type="button" class="bench-button" data-op={op}>
+          {label}
+        </button>
+      ))
+    }
+  </div>
+  <div class="bench-table-wrap">
+    <table class="bench-table" aria-label="Query results">
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  import '../scripts/benchmark.ts';
+</script>

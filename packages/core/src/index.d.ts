@@ -52,4 +52,39 @@ export function formatDate(date: Date): string;
 export function toISODate(date: Date): string;
 export function createCustomEvent(name: string, dateValue: string, now?: Date): CreateResult;
 export function loadCustomEvents(storage?: Storage): CountdownEvent[];
-export function saveCustomEvents(events: CountdownEvent[], storage?: Storage): void;
+export interface CustomEventChange {
+  id: string;
+  name: string;
+  date: string;
+  status: 'active' | 'deleted';
+}
+export function saveCustomEvents(
+  events: CountdownEvent[],
+  storage?: Storage,
+  sync?: (changes: CustomEventChange[]) => void,
+): void;
+
+export type BenchOp = 'load-1k' | 'load-10k' | 'update' | 'clear';
+
+export interface BenchRow {
+  id: number;
+  name: string;
+  emoji: string;
+  /** Pre-formatted, e.g. "Oct 31, 2026". */
+  date: string;
+}
+
+export interface BenchResult {
+  op: BenchOp;
+  rows: number;
+  /** null for operations that don't query (update, clear). */
+  queryMs: number | null;
+  renderMs: number;
+}
+
+export const BENCH_OPS: { op: BenchOp; label: string }[];
+export function queryRows(count: number): Promise<{ rows: BenchRow[]; queryMs: number }>;
+export function updateEvery10th(rows: BenchRow[]): BenchRow[];
+export function benchData(op: BenchOp, current: BenchRow[]): Promise<{ rows: BenchRow[]; queryMs: number | null }>;
+export function startRenderTimer(): () => Promise<number>;
+export function benchSummary(result: BenchResult | null): string;

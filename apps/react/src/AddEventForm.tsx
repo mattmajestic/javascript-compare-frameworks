@@ -39,6 +39,7 @@ export function AddEventForm({ onAdd }: Props) {
       </label>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="button">Add countdown</button>
+      <p className="form-note"><span className="airtable-mark" aria-hidden="true"></span>Synced to Airtable</p>
     </form>
   );
 }

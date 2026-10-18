@@ -2,8 +2,11 @@
 import { FRAMEWORKS, REPO_URL, sourceUrl } from '@compare/core';
 import BarChart from '../components/BarChart.astro';
 import CodeCompare from '../components/CodeCompare.astro';
+import Community from '../components/Community.astro';
 import DemoCompare from '../components/DemoCompare.astro';
+import GitHubMark from '../components/GitHubMark.astro';
 import Layout from '../layouts/Layout.astro';
+import bench from '../data/bench.json';
 import metrics from '../data/metrics.json';
 import { demoUrl, inlineCode, kB, seconds } from '../lib/format';
 
@@ -26,13 +29,22 @@ const highlights = [
 const chart = (pick: (m: Metrics) => number, label: (v: number) => string, detail: (m: Metrics) => string) =>
   rows.map(({ id, name, color, m }) => ({ id, name, color, value: pick(m), label: label(pick(m)), detail: detail(m) }));
 
+type BenchOp = keyof (typeof bench.frameworks)['react'];
+const ms = (v: number) => `${v.toFixed(1)} ms`;
+const benchChart = (op: BenchOp, pick: 'renderMs' | 'queryMs' = 'renderMs') =>
+  rows.map(({ id, name, color }) => {
+    const value = (bench.frameworks[id] as Record<BenchOp, { renderMs: number; queryMs: number | null }>)[op][pick]!;
+    return { id, name, color, value, label: ms(value), detail: `median of ${bench.iterations} runs` };
+  });
+const queryTimes = rows.map(({ id }) => bench.frameworks[id]['load-10k'].queryMs);
+
 const features = [
   { icon: '⏱️', title: 'Live countdown', body: 'Days, hours, minutes and seconds tick every second.', concept: 'Effects & cleanup' },
   { icon: '🗓️', title: 'Correct holiday dates', body: 'Thanksgiving is the 4th Thursday of November, not a hard-coded day.', concept: 'Shared logic' },
   { icon: '🧮', title: 'Soonest-first list', body: 'Holidays and your own events, merged and sorted on the fly.', concept: 'Derived state' },
-  { icon: '🎨', title: 'Themed selection', body: 'Picking an event switches the colour theme.', concept: 'Lists & events' },
   { icon: '✍️', title: 'Add your own', body: 'A validated form for custom countdowns, with inline errors.', concept: 'Forms & binding' },
-  { icon: '💾', title: 'Persistence', body: 'Custom events survive reloads and are shared across every demo.', concept: 'Side effects' },
+  { icon: '💾', title: 'Persistence', body: 'Custom events survive reloads, are shared across every demo, and sync to Airtable.', concept: 'Side effects' },
+  { icon: '⚡', title: 'Query & render benchmark', body: 'Fetch up to 10,000 rows, render them, update 10%, clear.', concept: 'Big lists' },
 ];
 ---
 
@@ -49,7 +61,9 @@ const features = [
         </p>
         <div class="cta">
           <a class="button primary" href="#demos">Try them side by side</a>
-          <a class="button" href={REPO_URL} target="_blank" rel="noreferrer">View on GitHub ↗</a>
+          <a class="button icon-button" href={REPO_URL} target="_blank" rel="noreferrer" aria-label="View on GitHub" title="View on GitHub">
+            <GitHubMark size={20} />
+          </a>
         </div>
         <ul class="chips" aria-label="Frameworks and versions">
           {
@@ -212,6 +226,39 @@ const features = [
       </div>
     </section>
 
+    <section class="block" id="performance">
+      <div class="container">
+        <p class="eyebrow">Runtime performance</p>
+        <h2 class="section-title">Query &amp; render benchmark</h2>
+        <p class="lede">
+          Every demo has a benchmark panel (try it in the side-by-side view). It queries rows from a mock API
+          (a real <code>fetch()</code> plus JSON parsing, with no network), then times how long each framework takes to get them on screen. {`Query time is the same code everywhere, so it lands in the same ${ms(Math.min(...queryTimes))} to ${ms(Math.max(...queryTimes))} band. `}
+          Rendering is where frameworks differ: at 1,000 rows they're all within a few milliseconds, because the
+          browser's layout and paint dominate. At 10,000 rows the gaps open up.
+        </p>
+        <div class="charts">
+          <BarChart title="Render 1,000 rows" subtitle="State update → painted frame (lower is better)" rows={benchChart('load-1k')} />
+          <BarChart title="Render 10,000 rows" subtitle="State update → painted frame (lower is better)" rows={benchChart('load-10k')} />
+          <BarChart title="Update every 10th row" subtitle="1,000 of 10,000 rows renamed (lower is better)" rows={benchChart('update')} />
+          <BarChart title="Clear 10,000 rows" subtitle="Remove every row (lower is better)" rows={benchChart('clear')} />
+          <BarChart
+            title="API query, 10,000 rows"
+            subtitle="fetch() + JSON parse, identical in every framework"
+            rows={benchChart('load-10k', 'queryMs')}
+          />
+        </div>
+        <p class="note">
+          {`Median of ${bench.iterations} runs after warm-up in headless ${bench.browser}, measured ${new Date(bench.generatedAt).toLocaleDateString('en-US', { dateStyle: 'medium' })} by `}
+          <code>npm run bench</code>. Absolute numbers depend on the machine, so compare the bars, not the
+          milliseconds. Each demo uses its framework's idiom for large immutable data: React <code>memo</code>, Vue{' '}
+          <code>shallowRef</code>, Svelte <code>$state.raw</code>, a Solid store with <code>reconcile</code>, and
+          Angular <code>OnPush</code>.
+        </p>
+      </div>
+    </section>
+
+    <Community />
+
     <section class="block" id="code">
       <div class="container">
         <p class="eyebrow">Concept by concept</p>
@@ -253,11 +300,18 @@ const features = [
                   <strong>Best for:</strong> {fw.bestFor}
                 </p>
                 <footer>
-                  <a href={demoUrl(fw.id, fw.port)} target="_blank" rel="noreferrer">
-                    Open demo ↗
+                  <a class="demo-button" href={demoUrl(fw.id, fw.port)} target="_blank" rel="noreferrer">
+                    <span aria-hidden="true">▶</span> Try the {fw.name} demo <span aria-hidden="true">↗</span>
                   </a>
-                  <a href={sourceUrl(fw.id)} target="_blank" rel="noreferrer">
-                    Source ↗
+                  <a
+                    class="source-icon"
+                    href={sourceUrl(fw.id)}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${fw.name} source on GitHub`}
+                    title={`${fw.name} source on GitHub`}
+                  >
+                    <GitHubMark size={18} />
                   </a>
                 </footer>
               </article>
@@ -336,6 +390,11 @@ const features = [
     background: var(--surface);
     font-weight: 600;
     text-decoration: none;
+  }
+  .icon-button {
+    display: inline-grid;
+    place-items: center;
+    padding-inline: 13px;
   }
   .button.primary {
     border-color: transparent;
@@ -424,21 +483,10 @@ const features = [
     font-size: 0.75rem;
     font-weight: 700;
   }
-  .charts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
-    gap: 16px;
-    margin-bottom: 16px;
-  }
   .row-name {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-  }
-  .note {
-    margin: 12px 0 0;
-    color: var(--faint);
-    font-size: 0.8125rem;
   }
   .visually-hidden {
     position: absolute;
@@ -512,12 +560,51 @@ const features = [
   }
   .verdict footer {
     display: flex;
-    gap: 16px;
-    font-size: 0.875rem;
-    font-weight: 600;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    font-size: 0.9375rem;
+    font-weight: 700;
   }
   .verdict footer a {
     text-decoration: none;
+  }
+  .demo-button {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    border: 1px solid color-mix(in oklab, var(--fw) 55%, transparent);
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--fw) 16%, var(--surface));
+    color: var(--text);
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .demo-button:hover,
+  .demo-button:focus-visible {
+    background: color-mix(in oklab, var(--fw) 30%, var(--surface));
+    transform: translateY(-1px);
+  }
+  .demo-button span:first-child {
+    color: var(--fw);
+    font-size: 0.75rem;
+  }
+  .source-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--muted);
+  }
+  .source-icon:hover,
+  .source-icon:focus-visible {
+    background: var(--surface-2);
+    color: var(--text);
   }
   .how {
     display: grid;

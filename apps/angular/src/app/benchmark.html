@@ -1,0 +1,25 @@
+<section class="panel bench" aria-labelledby="bench-title">
+  <div class="bench-header">
+    <h2 class="panel-title" id="bench-title">Query &amp; render benchmark</h2>
+    <p class="bench-result" [attr.data-op]="result()?.op">{{ summary(result()) }}</p>
+  </div>
+  <div class="bench-actions">
+    @for (item of ops; track item.op) {
+      <button type="button" class="bench-button" (click)="run(item.op)">{{ item.label }}</button>
+    }
+  </div>
+  <div class="bench-table-wrap">
+    <table class="bench-table" aria-label="Query results">
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td class="bench-id">{{ row.id }}</td>
+            <td class="bench-emoji">{{ row.emoji }}</td>
+            <td class="bench-name">{{ row.name }}</td>
+            <td class="bench-date">{{ row.date }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
