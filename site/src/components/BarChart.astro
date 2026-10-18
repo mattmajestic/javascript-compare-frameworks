@@ -1,6 +1,6 @@
 ---
-// Single-measure horizontal bar chart. One series, so one hue; framework
-// identity is carried by the text label (with a small dot beside it).
+// Single-measure horizontal bar chart. Each bar takes its framework's colour,
+// matching the dot beside its label; the label still names it in text.
 interface Row {
   id: string;
   name: string;
@@ -102,7 +102,7 @@ const max = Math.max(...sorted.map((r) => r.value)) || 1;
   .bar {
     height: 14px;
     border-radius: 0 4px 4px 0;
-    background: var(--bar);
+    background: var(--fw);
     transition: filter 0.15s ease;
   }
   .row:hover .bar,
