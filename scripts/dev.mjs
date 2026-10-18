@@ -5,7 +5,11 @@ import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { FRAMEWORKS } from '@compare/core';
 
-const targets = [...FRAMEWORKS.map((f) => ({ id: f.id, port: f.port })), { id: 'site', port: 5100 }];
+const targets = [
+  ...FRAMEWORKS.map((f) => ({ id: f.id, port: f.port })),
+  { id: 'site', port: 5100 },
+  { id: 'docs', port: 5110 },
+];
 const width = Math.max(...targets.map((t) => t.id.length));
 
 const isFree = (port) =>

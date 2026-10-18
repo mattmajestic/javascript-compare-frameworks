@@ -1,0 +1,52 @@
+name: Docs on GitHub Pages
+
+# Publishes the Starlight docs to https://mattmajestic.github.io/javascript-compare-frameworks/.
+# The same docs are also served by Vercel at https://js-comparisons.vercel.app/docs/.
+on:
+  push:
+    branches: [main]
+    paths: [docs/**, .github/workflows/pages.yml]
+  pull_request:
+    paths: [docs/**, .github/workflows/pages.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Build docs for GitHub Pages
+        run: npm run build -w @compare/docs
+        env:
+          DOCS_SITE: https://mattmajestic.github.io
+          DOCS_BASE: /javascript-compare-frameworks
+          DOCS_API_ORIGIN: https://js-comparisons.vercel.app
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/dist
+
+  # Pull requests only check that the docs build; main deploys them.
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

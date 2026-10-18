@@ -1,164 +1,175 @@
-# One App, Six Frameworks ⏳
+<h1 align="center">⏳ One App, Six Frameworks</h1>
 
-The same holiday countdown app built **idiomatically** in **React, Vue, Svelte, Solid, Angular and Astro**, all to a single spec. They share their logic and styles, so the only differences between them come from the framework. Every app is measured from its production build and checked against one end-to-end test suite.
+<p align="center">
+  The same holiday countdown, built <b>idiomatically</b> in React, Vue, Svelte, Solid, Angular and Astro against one spec,<br>
+  then measured side by side from real production builds and from visitors' real browsers.
+</p>
 
-**Live comparison site:** <https://js-comparisons.vercel.app> (side-by-side demos, charts, concept-by-concept code, and live data from visitors)
+<p align="center">
+  <a href="https://js-comparisons.vercel.app"><b>Live site</b></a> ·
+  <a href="https://js-comparisons.vercel.app/#demos">Side-by-side demos</a> ·
+  <a href="https://js-comparisons.vercel.app/#live">Live data</a> ·
+  <a href="https://js-comparisons.vercel.app/docs/"><b>Docs</b></a> ·
+  <a href="https://js-comparisons.vercel.app/docs/api-explorer/">API explorer</a>
+</p>
 
-![CI](https://github.com/mattmajestic/javascript-compare-frameworks/actions/workflows/ci.yml/badge.svg)
+<p align="center">
+  <a href="https://github.com/mattmajestic/javascript-compare-frameworks/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/mattmajestic/javascript-compare-frameworks/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://js-comparisons.vercel.app"><img alt="Deployed on Vercel" src="https://img.shields.io/badge/deployed%20on-Vercel-000000?logo=vercel&logoColor=white"></a>
+  <a href="https://js-comparisons.vercel.app/docs/guides/live-data/"><img alt="Data in Airtable" src="https://img.shields.io/badge/data%20in-Airtable-18BFFF?logo=airtable&logoColor=white"></a>
+  <a href="https://js-comparisons.vercel.app/docs/api-explorer/"><img alt="OpenAPI 3.1" src="https://img.shields.io/badge/API-OpenAPI%203.1-85EA2D?logo=swagger&logoColor=black"></a>
+  <a href="https://js-comparisons.vercel.app/docs/"><img alt="Docs: Starlight" src="https://img.shields.io/badge/docs-Starlight-BC52EE?logo=astro&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <a href="https://js-comparisons.vercel.app/demos/react/"><img alt="React" src="https://img.shields.io/badge/React-19.3-58c4dc?logo=react&logoColor=white"></a>
+  <a href="https://js-comparisons.vercel.app/demos/vue/"><img alt="Vue" src="https://img.shields.io/badge/Vue-3.5-42b883?logo=vuedotjs&logoColor=white"></a>
+  <a href="https://js-comparisons.vercel.app/demos/svelte/"><img alt="Svelte" src="https://img.shields.io/badge/Svelte-5.57-ff3e00?logo=svelte&logoColor=white"></a>
+  <a href="https://js-comparisons.vercel.app/demos/solid/"><img alt="Solid" src="https://img.shields.io/badge/Solid-1.9-4f88c6?logo=solid&logoColor=white"></a>
+  <a href="https://js-comparisons.vercel.app/demos/angular/"><img alt="Angular" src="https://img.shields.io/badge/Angular-22.2-dd0031?logo=angular&logoColor=white"></a>
+  <a href="https://js-comparisons.vercel.app/demos/astro/"><img alt="Astro" src="https://img.shields.io/badge/Astro-7.3-bc52ee?logo=astro&logoColor=white"></a>
+</p>
+
+---
+
+Every demo shares its date logic, validation and styles through one core package, renders the same markup, and passes the same end-to-end suite. So the differences you see in bundle size, code and rendering speed come from the framework itself.
+
+## Try it
+
+| Framework | Live demo | Source | Paradigm |
+| --- | --- | --- | --- |
+| React | [▶ Open demo](https://js-comparisons.vercel.app/demos/react/) | [`apps/react`](apps/react) | Virtual DOM + hooks |
+| Vue | [▶ Open demo](https://js-comparisons.vercel.app/demos/vue/) | [`apps/vue`](apps/vue) | Reactive refs + compiled templates |
+| Svelte | [▶ Open demo](https://js-comparisons.vercel.app/demos/svelte/) | [`apps/svelte`](apps/svelte) | Compiler + runes |
+| Solid | [▶ Open demo](https://js-comparisons.vercel.app/demos/solid/) | [`apps/solid`](apps/solid) | Fine-grained signals + JSX |
+| Angular | [▶ Open demo](https://js-comparisons.vercel.app/demos/angular/) | [`apps/angular`](apps/angular) | Signals + DI, full platform |
+| Astro | [▶ Open demo](https://js-comparisons.vercel.app/demos/astro/) | [`apps/astro`](apps/astro) | Static HTML + vanilla island |
+
+Or open the **[comparison site](https://js-comparisons.vercel.app)** to run any two side by side, see the charts, and compare the code concept by concept.
 
 ## Results
 
+### Build
+
 | Framework | Version | JS shipped (gzip) | App source lines | Source files | Config lines |
 | --- | --- | --- | --- | --- | --- |
-| React | 19.3.0 | 70.9 kB | 192 | 5 | 50 |
-| Vue | 3.5.43 | 28.5 kB | 167 | 6 | 45 |
-| Svelte | 5.57.2 | 17.9 kB | 164 | 5 | 47 |
-| Solid | 1.9.17 | 10.8 kB | 196 | 5 | 48 |
-| Angular | 22.2.2 | 58.1 kB | 216 | 12 | 103 |
-| Astro | 7.3.8 | 3.3 kB | 271 | 7 | 30 |
+| [React](https://js-comparisons.vercel.app/demos/react/) | 19.3.0 | 71.5 kB | 193 | 5 | 50 |
+| [Vue](https://js-comparisons.vercel.app/demos/vue/) | 3.5.43 | 29.0 kB | 168 | 6 | 45 |
+| [Svelte](https://js-comparisons.vercel.app/demos/svelte/) | 5.57.2 | 18.4 kB | 165 | 5 | 47 |
+| [Solid](https://js-comparisons.vercel.app/demos/solid/) | 1.9.17 | 11.4 kB | 197 | 5 | 48 |
+| [Angular](https://js-comparisons.vercel.app/demos/angular/) | 22.2.2 | 58.7 kB | 217 | 12 | 103 |
+| [Astro](https://js-comparisons.vercel.app/demos/astro/) | 7.3.8 | 3.9 kB | 272 | 7 | 30 |
 
-<sub>Snapshot from `npm run build` (Oct 2026). Line counts skip blank lines. The shared `@compare/core` package is excluded from line counts but included in every bundle. The live site always shows the latest numbers from `site/src/data/metrics.json`.</sub>
+<sub>From <code>npm run build</code> (Oct 2026). Line counts skip blank lines. The shared <code>@compare/core</code> package is excluded from line counts but included in every bundle. The <a href="https://js-comparisons.vercel.app/#metrics">live site</a> always shows the latest numbers.</sub>
 
 ### Query & render benchmark
 
-Each demo queries rows from a mock API (a real `fetch()` plus JSON parsing of a Blob URL, so there's no network noise), then times the frames until they're painted. Median of 10 runs after warm-up, headless Chromium:
+Each demo fetches rows from a mock API, then times state change → painted frame. Median of 10 runs after warm-up in headless Chromium:
 
-| Framework | Render 1k rows | Render 10k rows | Update every 10th (of 10k) | Clear 10k | API query (10k) |
+| Framework | Render 1k rows | Render 10k rows | Update every 10th | Clear 10k | API query (10k) |
 | --- | --- | --- | --- | --- | --- |
-| React | 45.5 ms | 422.8 ms | 48.6 ms | 50.0 ms | 17.4 ms |
-| Vue | 46.6 ms | 328.3 ms | 48.1 ms | 37.0 ms | 17.3 ms |
-| Svelte | 48.0 ms | 336.0 ms | 39.5 ms | 24.3 ms | 16.9 ms |
-| Solid | 47.0 ms | 368.9 ms | 47.3 ms | 27.6 ms | 17.6 ms |
-| Angular | 47.9 ms | 347.9 ms | 52.0 ms | 55.5 ms | 22.3 ms |
-| Astro (vanilla) | 49.1 ms | 306.4 ms | 41.4 ms | 23.6 ms | 16.8 ms |
+| [React](https://js-comparisons.vercel.app/demos/react/) | 45.5 ms | 422.8 ms | 48.6 ms | 50.0 ms | 17.4 ms |
+| [Vue](https://js-comparisons.vercel.app/demos/vue/) | 46.6 ms | 328.3 ms | 48.1 ms | 37.0 ms | 17.3 ms |
+| [Svelte](https://js-comparisons.vercel.app/demos/svelte/) | 48.0 ms | 336.0 ms | 39.5 ms | 24.3 ms | 16.9 ms |
+| [Solid](https://js-comparisons.vercel.app/demos/solid/) | 47.0 ms | 368.9 ms | 47.3 ms | 27.6 ms | 17.6 ms |
+| [Angular](https://js-comparisons.vercel.app/demos/angular/) | 47.9 ms | 347.9 ms | 52.0 ms | 55.5 ms | 22.2 ms |
+| [Astro](https://js-comparisons.vercel.app/demos/astro/) (vanilla) | 49.1 ms | 306.4 ms | 41.4 ms | 23.6 ms | 16.8 ms |
 
-<sub>Measured with `npm run bench`, which writes `site/src/data/bench.json`. Absolute numbers depend on the machine, so compare frameworks against each other.</sub>
+<sub>From <code>npm run bench</code>. Absolute numbers depend on the machine, so compare the frameworks with each other. For numbers from visitors' devices, see <a href="https://js-comparisons.vercel.app/#live">Live data</a>. Method: <a href="https://js-comparisons.vercel.app/docs/guides/benchmarks/">Benchmarks guide</a>.</sub>
 
-**Takeaways**
+### Takeaways
 
 - **Svelte and Vue** need the least code: two-way binding (`bind:value`, `v-model`) and auto-tracked derived values remove most of the glue.
 - **Solid** ships the smallest framework bundle. Its JSX looks like React, but components run once and signals update the DOM directly.
 - **React** ships the most JavaScript, and its dependency arrays are the easiest place to introduce bugs.
-- **Angular** has the most files and config, but signals, the `@for`/`@if` control flow and standalone components make it far leaner than it used to be.
-- **Astro** ships almost no JavaScript, but its interactive island is plain DOM code. That makes it the longest source here, and it shows exactly what a framework does for you.
+- **Angular** has the most files and config, but signals, `@for`/`@if` and standalone components make it far leaner than it used to be.
+- **Astro** ships almost no JavaScript, but its interactive island is plain DOM code. That makes it the longest source here, and shows exactly what a framework does for you.
 - **API query time doesn't depend on the framework.** It's the same `fetch()` everywhere, so pick a framework for rendering and DX, not data fetching.
-- **At 1,000 rows every framework is within a few milliseconds**, because the browser's layout and paint dominate. At 10,000 rows hand-written DOM code is fastest and React is slowest. Svelte leads the component frameworks on updates and clears.
-- **Idioms matter more than frameworks.** Without `memo`, React re-renders all 10,000 rows on every clock tick. Solid's update time halved after switching from a plain signal to a store with `reconcile`, at the cost of slower initial loads and 3 kB more bundle.
+- **Idioms matter more than frameworks.** Without `memo`, React re-renders all 10,000 rows on every clock tick. Solid's update time halved after switching to a store with `reconcile`.
 
-## The spec
+## <img src="docs/public/airtable.svg" width="24" height="24" alt="Airtable logo"> Live data in Airtable
 
-Every demo implements the same features, and each one exercises a core concept:
-
-| Feature | Concept |
-| --- | --- |
-| Live days/hours/minutes/seconds countdown | Effects, timers and cleanup |
-| Holidays with correctly computed dates (Thanksgiving = 4th Thursday of November) | Shared logic |
-| Holidays and custom events merged and sorted soonest-first | Derived state |
-| Selecting an event switches the theme | Lists, keys, events |
-| The countdown hero as a child component | Components and props |
-| Add a custom countdown with validation | Forms and binding |
-| Custom events persisted to `localStorage` (shared across demos) and synced to Airtable | Side effects |
-| Query, render, update and clear up to 10,000 rows, with timings | Big lists and rendering performance |
-
-All six render identical markup ([the contract](packages/core/README.md)) against one shared stylesheet, and [`e2e/countdown.spec.ts`](e2e/countdown.spec.ts) runs the same tests against each demo with a frozen clock.
-
-## Live data (Airtable)
-
-The demos write to an [Airtable](https://airtable.com) base, and the site's **Live** section reads aggregate numbers back:
-
-- **Events**: every custom countdown added or removed in any demo, with the framework it came from. Removing one marks it `Deleted` rather than erasing the row.
-- **Benchmarks**: real-world benchmark runs from visitors' browsers, kept as running averages per framework × operation × browser (around 120 rows at most, so it fits the free plan).
-- **Snapshots**: the latest build metrics and lab benchmark (`metrics.json` and `bench.json`), one row per framework. Production deploys overwrite the rows in place, and only write when a number actually changed (build time alone doesn't count). It's always exactly 6 rows, so reading it is a single small request.
+Countdowns added in any demo, benchmark runs from visitors' browsers, and the latest build metrics are stored in an [Airtable](https://airtable.com) base. The site's [Live section](https://js-comparisons.vercel.app/#live) reads aggregate numbers back. Event names are never shown.
 
 ```
-demo (any framework) ──POST──▶ /api/events/, /api/bench/ ──▶ Airtable
-site Live section ◀──GET── /api/stats/ (counts + averages only, edge-cached 30 s) ◀── Airtable
+demo (any framework) ──POST──▶ /api/events/, /api/bench/ ──▶ Airtable ◀── db/sync.mjs (production deploys)
+site Live section    ◀──GET─── /api/stats/ (counts + averages, edge-cached 30 s)
 ```
 
-How it fits together:
+| Table | What it holds | Size |
+| --- | --- | --- |
+| **Events** | Custom countdowns added or removed, and which demo they came from | One row per countdown |
+| **Benchmarks** | Visitors' benchmark runs, as running averages per framework × operation × browser | About 120 rows at most |
+| **Snapshots** | The latest build metrics and lab benchmark, overwritten in place | Always 6 rows |
 
-- The Airtable token stays server-side, in [Vercel functions](api/). The browser only ever talks to `/api/*`.
-- Syncing lives in the shared core ([`sync.js`](packages/core/src/sync.js), `saveCustomEvents`, `benchData`/`startRenderTimer`), so no framework code knows about Airtable. Each demo reports only its own changes, even with two demos open side by side.
-- Event names are written to Airtable but never read back or shown on the site.
-- Automated browsers (`npm run bench`, the e2e suite) don't report, so they can't skew the real-world numbers. Without the API (local dev servers), syncing does nothing and the demos work exactly as before.
-- The table schema lives in code in [`db/schema.mjs`](db/schema.mjs).
+The Airtable token stays on the server, and no framework code knows about Airtable, because syncing lives in the shared core. Setup takes five steps: [Live data guide → Setup](https://js-comparisons.vercel.app/docs/guides/live-data/#setup).
 
-### Setup
+## API
 
-1. Create a [personal access token](https://airtable.com/create/tokens) with the `data.records:read`, `data.records:write`, `schema.bases:read` and `schema.bases:write` scopes, limited to your base.
-2. Copy [`.env.example`](.env.example) to `.env` and fill in `AIRTABLE_TOKEN` and `AIRTABLE_BASE_ID` (the `app…` part of the base's URL).
-3. Run `npm run db:migrate` to create the tables and fields. It only adds what's missing, so it's safe to re-run after changing the schema.
-4. Add the same variables in Vercel → Settings → Environment Variables (Production, and Preview if you want PR previews to sync).
+Three Vercel functions in [`api/`](api) keep the Airtable token off the browser. They're described by an **OpenAPI 3.1** spec and rendered with **Swagger UI** in the [API explorer](https://js-comparisons.vercel.app/docs/api-explorer/).
 
-To try the full flow locally, run `npx vercel dev`.
+| Method | Path | What it does |
+| --- | --- | --- |
+| `POST` | `/api/events/` | Records countdowns added or removed in a demo (upserts on event id) |
+| `POST` | `/api/bench/` | Folds visitors' benchmark runs into running averages |
+| `GET` | `/api/stats/` | Aggregate counts and averages for the Live section (no names) |
 
-### Keeping the data safe
-
-- `npm run db:backup` downloads every table, schema included, to `db/backups/airtable-<time>.json`. That folder is gitignored because it contains the event names visitors typed, so keep backups somewhere private.
-- `npm run db:sync` refreshes the snapshot by hand, e.g. after `npm run bench`. Production deploys do this automatically, and a failed sync never fails the build.
-- Airtable keeps its own revision history per record, and `db/schema.mjs` with `npm run db:migrate` can rebuild the tables in a fresh base.
-
-## Concept cheat sheet
-
-| | React | Vue | Svelte 5 | Solid | Angular | Astro (vanilla) |
-| --- | --- | --- | --- | --- | --- | --- |
-| State | `useState` | `ref` | `$state` | `createSignal` | `signal` | `let` + manual render |
-| Derived | recompute in render | `computed` | `$derived` | `createMemo` / function | `computed` | recompute in `render()` |
-| Effect | `useEffect` + deps | `onMounted` / `watch` | `$effect` | `createEffect` / `onCleanup` | `effect` / `DestroyRef` | `setInterval` |
-| Two-way input | `value` + `onChange` | `v-model` | `bind:value` | `value` + `onInput` | `[(ngModel)]` | `FormData` |
-| List | `.map()` + `key` | `v-for` + `:key` | `{#each (key)}` | `<For>` / `<Index>` | `@for (track)` | `<template>` + `cloneNode` |
-| Conditional | `&&` / ternary | `v-if` | `{#if}` | `<Show>` | `@if` | `hidden` |
-
-## Repo layout
-
-```
-apps/
-  react/      Vite + React 19
-  vue/        Vite + Vue 3 (<script setup>)
-  svelte/     Vite + Svelte 5 (runes)
-  solid/      Vite + Solid
-  angular/    Angular CLI (standalone, signals, zoneless)
-  astro/      Astro, static HTML + a vanilla TypeScript island
-packages/
-  core/       Shared date logic, validation, persistence, framework metadata, CSS (+ unit tests)
-site/         Astro comparison site: side-by-side demos, metrics charts, live data, code comparison
-api/          Vercel functions: /api/events, /api/bench, /api/stats (Airtable)
-db/           Airtable schema as code, plus migrate, sync and backup scripts
-e2e/          One Playwright spec run against every demo
-scripts/      build (build + measure + assemble), bench (runtime benchmark), dev (run everything), serve (preview)
+```bash
+curl https://js-comparisons.vercel.app/api/stats/
 ```
 
-## Getting started
+Spec: [`docs/public/openapi.yaml`](docs/public/openapi.yaml) · Reference: [API guide](https://js-comparisons.vercel.app/docs/reference/api/)
+
+## Quick start
 
 Requires Node 22.12+.
 
 ```bash
 npm install
-
-npm run dev            # every demo + the site, each on its own port (site: http://localhost:5100)
-npm run dev:svelte     # or just one demo (dev:react, dev:vue, dev:solid, dev:angular, dev:astro, dev:site)
-
-npm test               # unit tests for the shared core
-npm run typecheck      # tsc / vue-tsc / svelte-check / astro check
-npm run build          # build all demos, regenerate metrics, build the site with demos under /demos/<id>/
-npm run preview        # serve the assembled site at http://localhost:4173
-npm run e2e            # Playwright suite against the built site (run `npx playwright install chromium` once)
-npm run bench          # run the query & render benchmark in Chromium and update site/src/data/bench.json
-npm run db:migrate     # create/update the Airtable tables from db/schema.mjs (needs .env)
-npm run db:sync        # refresh the metrics + benchmark snapshot in Airtable
-npm run db:backup      # download every Airtable table to db/backups/ (gitignored)
+npm run dev        # every demo, the site (http://localhost:5100) and the docs (http://localhost:5110/docs/)
+npm run build      # build all demos, regenerate metrics, assemble site + docs
+npm run e2e        # one Playwright suite against every demo
 ```
 
-## Deploying
+Every command: [Commands reference](https://js-comparisons.vercel.app/docs/reference/commands/).
 
-The whole thing is hosted on **Vercel only** and deploys as **one static site plus three serverless functions**. [`vercel.json`](vercel.json) runs `npm run build` from the repo root and serves `site/dist`, so each demo is available at `/demos/<framework>/`. The functions in [`api/`](api/) are picked up automatically and need the Airtable env vars (see [Live data](#live-data-airtable)). Without them, the site still works and the Live section says its data is unavailable.
+## Documentation
 
-## Adding a framework
+The full docs are at **[js-comparisons.vercel.app/docs](https://js-comparisons.vercel.app/docs/)**, built with [Starlight](https://starlight.astro.build) from [`docs/`](docs/src/content/docs) and deployed with the site.
 
-1. Add an entry to [`packages/core/src/frameworks.js`](packages/core/src/frameworks.js) (id, npm package, colour, dev port, verdict).
-2. Create `apps/<id>` with a `@compare/<id>` package that has `dev` and `build` scripts, emitting relative asset URLs to `dist/`.
-3. Render the [markup contract](packages/core/README.md) (including `data-framework="<id>"` on `.app`, which tells Airtable sync where events came from) and import `@compare/core/styles.css`.
-4. Add a benchmark component that renders the `.bench` markup using `benchData()` and `startRenderTimer()` from core.
-5. Add `#region state|derived|effects|list` markers, plus file entries in [`site/src/lib/code.ts`](site/src/lib/code.ts) for the component, form and benchmark comparisons.
-6. Run `npm run build && npm run e2e && npm run bench`. The spec and the benchmark pick up the new framework automatically.
-7. Run `npm run db:migrate` to add the framework to Airtable's Framework fields. Writes still work before you do, because the API creates missing choices on the fly.
+| Guide | What's in it |
+| --- | --- |
+| [Getting started](https://js-comparisons.vercel.app/docs/getting-started/) | Install, dev ports, build, preview and test |
+| [Architecture](https://js-comparisons.vercel.app/docs/guides/architecture/) | Repo layout, the spec, the shared core, how the comparison stays fair, concept cheat sheet |
+| [Benchmarks](https://js-comparisons.vercel.app/docs/guides/benchmarks/) | How the lab and real-world benchmarks are measured, and how to read them |
+| [Live data (Airtable)](https://js-comparisons.vercel.app/docs/guides/live-data/) | Tables and fields, data flow, privacy, setup, backups and limits |
+| [Deploying](https://js-comparisons.vercel.app/docs/guides/deploying/) | Vercel, environment variables, and what happens on each deploy |
+| [Adding a framework](https://js-comparisons.vercel.app/docs/guides/adding-a-framework/) | Checklist for a seventh demo |
+| [API reference](https://js-comparisons.vercel.app/docs/reference/api/) | Endpoints, payloads, validation, status codes and caching |
+| [API explorer](https://js-comparisons.vercel.app/docs/api-explorer/) | The OpenAPI spec in Swagger UI, with `GET /api/stats/` live |
+| [Core package](https://js-comparisons.vercel.app/docs/reference/core/) | The `@compare/core` API and the markup every demo renders |
+| [Commands](https://js-comparisons.vercel.app/docs/reference/commands/) | Every npm script |
+
+To edit the docs, change the Markdown in [`docs/src/content/docs`](docs/src/content/docs) and run `npm run dev:docs`.
+
+## Repo layout
+
+```
+apps/        One demo per framework: react, vue, svelte, solid, angular, astro
+packages/    core: shared logic, validation, persistence, sync, benchmark, CSS (+ unit tests)
+site/        Astro comparison site: demos, charts, live data, code comparison
+docs/        Starlight docs site and the OpenAPI spec (served at /docs/)
+api/         Vercel functions: /api/events, /api/bench, /api/stats → Airtable
+db/          Airtable schema as code + migrate, sync and backup scripts
+e2e/         One Playwright spec run against every demo, plus the site
+scripts/     build, bench, dev and serve
+```
+
+---
+
+<p align="center">
+  Built by <a href="https://www.youtube.com/@majesticcoding">Majestic Coding</a> ·
+  Hosted on <a href="https://vercel.com">Vercel</a> ·
+  Data in <a href="https://airtable.com">Airtable</a> ·
+  Docs with <a href="https://starlight.astro.build">Starlight</a>
+</p>

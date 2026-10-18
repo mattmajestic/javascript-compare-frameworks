@@ -6,7 +6,8 @@
   "workspaces": [
     "packages/*",
     "apps/*",
-    "site"
+    "site",
+    "docs"
   ],
   "engines": {
     "node": ">=22.12"
@@ -20,6 +21,7 @@
     "dev:angular": "npm run dev -w @compare/angular",
     "dev:astro": "npm run dev -w @compare/astro",
     "dev:site": "npm run dev -w @compare/site",
+    "dev:docs": "npm run dev -w @compare/docs",
     "build": "node scripts/build.mjs",
     "preview": "node scripts/serve.mjs",
     "bench": "node scripts/bench.mjs",
