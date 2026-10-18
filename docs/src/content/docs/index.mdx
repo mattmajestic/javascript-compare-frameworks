@@ -1,0 +1,61 @@
+---
+title: One App, Six Frameworks
+description: The same holiday countdown built in React, Vue, Svelte, Solid, Angular and Astro, measured side by side.
+template: splash
+hero:
+  tagline: The same holiday countdown, built idiomatically in six frameworks against one spec, then measured from real production builds and from visitors' real browsers.
+  actions:
+    - text: Get started
+      link: getting-started/
+      icon: right-arrow
+    - text: Open the live site
+      link: https://js-comparisons.vercel.app
+      icon: external
+      variant: minimal
+    - text: API explorer
+      link: api-explorer/
+      icon: seti:json
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## What's here
+
+<CardGrid>
+  <Card title="Six real apps" icon="laptop">
+    React, Vue, Svelte, Solid, Angular and Astro, each in its own idiom. They share logic and styles through
+    one core package, so every difference comes from the framework.
+  </Card>
+  <Card title="Measured, not guessed" icon="random">
+    Bundle sizes, line counts and build times from production builds, plus a query &amp; render benchmark run
+    in the lab and in visitors' browsers.
+  </Card>
+  <Card title="Live data in Airtable" icon="seti:db">
+    Countdowns, real-world benchmark runs and the latest build metrics are stored in Airtable, behind three
+    small Vercel functions.
+  </Card>
+  <Card title="One test suite" icon="approve-check">
+    A single Playwright spec runs against every demo with a frozen clock, so all six behave identically.
+  </Card>
+</CardGrid>
+
+## Try a demo
+
+<CardGrid>
+  <LinkCard title="React" description="Virtual DOM + hooks" href="https://js-comparisons.vercel.app/demos/react/" />
+  <LinkCard title="Vue" description="Reactive refs + compiled templates" href="https://js-comparisons.vercel.app/demos/vue/" />
+  <LinkCard title="Svelte" description="Compiler + runes" href="https://js-comparisons.vercel.app/demos/svelte/" />
+  <LinkCard title="Solid" description="Fine-grained signals + JSX" href="https://js-comparisons.vercel.app/demos/solid/" />
+  <LinkCard title="Angular" description="Signals + DI, full platform" href="https://js-comparisons.vercel.app/demos/angular/" />
+  <LinkCard title="Astro" description="Static HTML + vanilla island" href="https://js-comparisons.vercel.app/demos/astro/" />
+</CardGrid>
+
+## Where to go next
+
+<CardGrid>
+  <LinkCard title="Architecture" description="Repo layout, the shared core and how the comparison stays fair." href="guides/architecture/" />
+  <LinkCard title="Live data (Airtable)" description="Tables, data flow, privacy, setup and backups." href="guides/live-data/" />
+  <LinkCard title="API reference" description="The three endpoints, their payloads, validation and limits." href="reference/api/" />
+  <LinkCard title="Adding a framework" description="A checklist for adding a seventh demo." href="guides/adding-a-framework/" />
+</CardGrid>

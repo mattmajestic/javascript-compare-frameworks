@@ -1,0 +1,73 @@
+---
+// Swagger UI for docs/public/openapi.yaml, inside the Starlight layout.
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import 'swagger-ui-dist/swagger-ui.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const spec = `${base}openapi.yaml`;
+// Empty on Vercel (same origin). Set for GitHub Pages, which has no /api.
+const apiOrigin = process.env.DOCS_API_ORIGIN ?? '';
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'API explorer',
+    description: 'The OpenAPI spec for the three Vercel functions, rendered with Swagger UI.',
+    tableOfContents: false,
+    pagefind: false,
+  }}
+>
+  <p>
+    Every endpoint, schema and error, from <a href={spec}><code>openapi.yaml</code></a>. Only{' '}
+    <code>GET /api/stats/</code> can be tried live here. The two write endpoints show their examples, but sending them
+    is turned off so the explorer can't fill Airtable with test data. The{' '}
+    <a href={`${base}reference/api/`}>API reference</a> covers the same endpoints in prose.
+  </p>
+  <div id="swagger" data-spec={spec} data-api-origin={apiOrigin} class="not-content">
+    <p class="loading">Loading the API spec…</p>
+  </div>
+</StarlightPage>
+
+<style is:global>
+  /* Swagger UI is light-only, so give it a light card in either theme. */
+  #swagger {
+    margin-top: 1.5rem;
+    padding: 0.5rem 1rem 1rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.75rem;
+    background: #fff;
+    color: #3b4151;
+  }
+  #swagger .loading {
+    padding: 1rem 0;
+  }
+  #swagger .swagger-ui .info {
+    margin: 1rem 0;
+  }
+  #swagger .swagger-ui .scheme-container {
+    padding: 0.75rem 0;
+    box-shadow: none;
+  }
+</style>
+
+<script>
+  import SwaggerUIBundle from 'swagger-ui-dist/swagger-ui-es-bundle.js';
+
+  const el = document.getElementById('swagger')!;
+  SwaggerUIBundle({
+    url: el.dataset.spec,
+    domNode: el,
+    deepLinking: true,
+    docExpansion: 'list',
+    defaultModelsExpandDepth: 0,
+    // Writes are documented, not sent: keep test data out of Airtable.
+    supportedSubmitMethods: ['get'],
+    tryItOutEnabled: false,
+    // On GitHub Pages there's no /api, so send "Try it" calls to production.
+    requestInterceptor: (req) => {
+      const api = el.dataset.apiOrigin;
+      if (api) req.url = req.url.replace(`${location.origin}/api/`, `${api}/api/`);
+      return req;
+    },
+  });
+</script>

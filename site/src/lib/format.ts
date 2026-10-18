@@ -1,3 +1,9 @@
+/** The docs site: served at /docs/ in production, from its own dev server locally. */
+export const docsUrl = (path = '') => `${import.meta.env.DEV ? 'http://localhost:5110/docs/' : '/docs/'}${path}`;
+
+/** The README's Documentation section on GitHub. */
+export const repoDocsUrl = (repo: string) => `${repo}#documentation`;
+
 export const kB = (bytes: number) => `${(bytes / 1000).toFixed(1)} kB`;
 
 export const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;

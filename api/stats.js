@@ -8,7 +8,12 @@ import { BENCH_OPS, FRAMEWORKS } from '../packages/core/src/index.js';
 import { BENCH_FIELDS as B, BENCH_TABLE, EVENTS_FIELDS as E, EVENTS_TABLE, STATUS } from '../db/schema.mjs';
 import { config, json, listAll } from './_airtable.js';
 
-const CACHE = { 'Cache-Control': 'public, max-age=0, s-maxage=30, stale-while-revalidate=30' };
+// Public, read-only aggregates, so any origin may read them (the docs'
+// API explorer on GitHub Pages calls this cross-origin).
+const HEADERS = {
+  'Cache-Control': 'public, max-age=0, s-maxage=30, stale-while-revalidate=30',
+  'Access-Control-Allow-Origin': '*',
+};
 const idByName = new Map(FRAMEWORKS.map((f) => [f.name, f.id]));
 
 export async function GET() {
@@ -60,7 +65,7 @@ export async function GET() {
     return json(
       200,
       { generatedAt: new Date().toISOString(), events: { total: events.length, active, byFramework: added }, benchmarks, runs, browsers },
-      CACHE,
+      HEADERS,
     );
   } catch (err) {
     console.error(err);

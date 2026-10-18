@@ -98,7 +98,12 @@ if (withSite) {
   for (const { id } of FRAMEWORKS) {
     cpSync(join(root, 'apps', id, 'dist'), join(root, 'site', 'dist', 'demos', id), { recursive: true });
   }
-  console.log('\n✔ site/dist is ready. Run `npm run preview` to serve it.');
+
+  console.log('\n▶ Building docs');
+  rmSync(join(root, 'docs', 'dist'), { recursive: true, force: true });
+  run('@compare/docs');
+  cpSync(join(root, 'docs', 'dist'), join(root, 'site', 'dist', 'docs'), { recursive: true });
+  console.log('\n✔ site/dist is ready (site, /demos/, /docs/). Run `npm run preview` to serve it.');
 }
 
 // Production deploys on Vercel also refresh the snapshot of these numbers in

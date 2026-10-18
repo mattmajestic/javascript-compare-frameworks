@@ -1,0 +1,285 @@
+openapi: 3.1.0
+info:
+  title: One App, Six Frameworks API
+  version: 1.0.0
+  summary: The Vercel functions behind the demos' Airtable sync and the site's Live section.
+  description: |
+    Three small endpoints, deployed as Vercel functions from `api/`. They hold the Airtable
+    token server-side, so browsers never talk to Airtable directly.
+
+    - The demos call the two **POST** endpoints automatically. You never need to call them yourself.
+    - The site's Live section polls **GET /api/stats/**.
+
+    **Notes**
+
+    - Paths end in `/`. `vercel.json` sets `trailingSlash`, so a path without one gets a `308` redirect.
+    - Write endpoints only accept requests from pages on the same deployment. A request whose
+      `Origin` header names another host gets `403`.
+    - If the deployment has no Airtable environment variables, every endpoint returns `503`.
+  contact:
+    name: Source on GitHub
+    url: https://github.com/mattmajestic/javascript-compare-frameworks
+externalDocs:
+  description: Live data guide (tables, setup, privacy)
+  url: https://js-comparisons.vercel.app/docs/guides/live-data/
+servers:
+  - url: /
+    description: This deployment
+  - url: https://js-comparisons.vercel.app
+    description: Production
+tags:
+  - name: Events
+    description: Custom countdowns added and removed in the demos.
+  - name: Benchmarks
+    description: Real-world benchmark runs from visitors' browsers.
+  - name: Stats
+    description: Aggregate numbers for the site's Live section.
+
+paths:
+  /api/events/:
+    post:
+      tags: [Events]
+      operationId: syncEvents
+      summary: Record countdowns that were added or removed
+      description: |
+        Upserts each event into the **Events** table, merging on `Event ID`, so sending the same
+        event twice updates one row. `active` sets **Created At** and the framework. `deleted`
+        marks the row `Deleted` and sets **Deleted At**; rows are never erased.
+
+        Called by `saveCustomEvents()` in the shared core with only the calling page's own changes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EventsRequest' }
+            examples:
+              added:
+                summary: A countdown added in the Vue demo
+                value:
+                  framework: vue
+                  events:
+                    - { id: custom-mve3jqg4fw4u, name: Product launch, date: '2026-12-01', status: active }
+              removed:
+                summary: The same countdown removed
+                value:
+                  framework: vue
+                  events:
+                    - { id: custom-mve3jqg4fw4u, name: Product launch, date: '2026-12-01', status: deleted }
+      responses:
+        '204': { description: Saved to Airtable. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/CrossOrigin' }
+        '413': { $ref: '#/components/responses/TooLarge' }
+        '502': { $ref: '#/components/responses/AirtableError' }
+        '503': { $ref: '#/components/responses/NotConfigured' }
+
+  /api/bench/:
+    post:
+      tags: [Benchmarks]
+      operationId: reportBenchmarkRuns
+      summary: Report benchmark runs from a visitor's browser
+      description: |
+        Folds the runs into running averages in the **Benchmarks** table: one row per
+        framework × operation × browser, merging on `Key`. The browser family (Chrome, Edge,
+        Firefox, Safari, Other) comes from the `User-Agent` header. Nothing more specific is stored.
+
+        Called by the shared core after `startRenderTimer()` resolves. Runs are batched (3 seconds
+        after the last one, or when the page is hidden), and automated browsers
+        (`navigator.webdriver`) never report.
+
+        Two batches updating the same row at the same moment can drop one batch's counts. For
+        crowd-sourced averages that trade-off is accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BenchRequest' }
+            example:
+              framework: svelte
+              runs:
+                - { op: load-1k, renderMs: 47.3, queryMs: 12.5 }
+                - { op: load-10k, renderMs: 383.4, queryMs: 23.8 }
+                - { op: update, renderMs: 39.5, queryMs: null }
+      responses:
+        '204': { description: Folded into the running averages. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/CrossOrigin' }
+        '413': { $ref: '#/components/responses/TooLarge' }
+        '502': { $ref: '#/components/responses/AirtableError' }
+        '503': { $ref: '#/components/responses/NotConfigured' }
+
+  /api/stats/:
+    get:
+      tags: [Stats]
+      operationId: getStats
+      summary: Aggregate counts and benchmark averages
+      description: |
+        Everything the site's Live section shows. Only counts and averages are returned: event
+        names are never read from Airtable.
+
+        Cached at Vercel's edge for 30 seconds (`s-maxage=30, stale-while-revalidate=30`), so
+        however many visitors poll it, Airtable sees only a few reads a minute.
+      responses:
+        '200':
+          description: Current totals.
+          headers:
+            Cache-Control:
+              schema: { type: string, example: 'public, max-age=0, s-maxage=30, stale-while-revalidate=30' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Stats' }
+        '502': { $ref: '#/components/responses/AirtableError' }
+        '503': { $ref: '#/components/responses/NotConfigured' }
+
+components:
+  schemas:
+    FrameworkId:
+      type: string
+      enum: [react, vue, svelte, solid, angular, astro]
+      description: A framework id from `packages/core/src/frameworks.js`.
+    BenchOp:
+      type: string
+      enum: [load-1k, load-10k, update, clear]
+
+    EventChange:
+      type: object
+      required: [id, name, date, status]
+      properties:
+        id:
+          type: string
+          pattern: '^custom-[a-z0-9]{1,24}$'
+          description: The client-generated event id.
+          example: custom-mve3jqg4fw4u
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+          description: Trimmed before saving, and must not be blank.
+          example: Product launch
+        date:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+          description: Local date, as `YYYY-MM-DD`.
+          example: '2026-12-01'
+        status:
+          type: string
+          enum: [active, deleted]
+    EventsRequest:
+      type: object
+      required: [events]
+      properties:
+        framework:
+          description: The demo the change came from. An unknown or missing value is accepted and stored without a framework.
+          oneOf:
+            - $ref: '#/components/schemas/FrameworkId'
+            - type: 'null'
+        events:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: { $ref: '#/components/schemas/EventChange' }
+
+    BenchRun:
+      type: object
+      required: [op, renderMs, queryMs]
+      properties:
+        op: { $ref: '#/components/schemas/BenchOp' }
+        renderMs:
+          type: number
+          minimum: 0
+          exclusiveMaximum: 60000
+          description: State change → painted frame, in milliseconds.
+        queryMs:
+          type: [number, 'null']
+          minimum: 0
+          exclusiveMaximum: 60000
+          description: fetch() + JSON parse, in milliseconds. Required, but `null` for `update` and `clear`.
+    BenchRequest:
+      type: object
+      required: [framework, runs]
+      properties:
+        framework: { $ref: '#/components/schemas/FrameworkId' }
+        runs:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items: { $ref: '#/components/schemas/BenchRun' }
+
+    BenchCell:
+      type: [object, 'null']
+      description: '`null` when no visitor has run this operation in this framework yet.'
+      properties:
+        runs: { type: integer, example: 42 }
+        renderMs: { type: number, description: Average across browsers, weighted by runs., example: 331.8 }
+        queryMs: { type: [number, 'null'], example: 17.2 }
+    Stats:
+      type: object
+      required: [generatedAt, events, benchmarks, runs, browsers]
+      properties:
+        generatedAt: { type: string, format: date-time }
+        events:
+          type: object
+          properties:
+            total: { type: integer, description: Every countdown ever added, including removed ones. }
+            active: { type: integer, description: Countdowns not removed. }
+            byFramework:
+              type: object
+              description: Countdowns added, per framework id.
+              additionalProperties: { type: integer }
+              example: { react: 3, vue: 1, svelte: 4, solid: 2, angular: 0, astro: 1 }
+        benchmarks:
+          type: object
+          description: Framework id → operation → averages.
+          additionalProperties:
+            type: object
+            additionalProperties: { $ref: '#/components/schemas/BenchCell' }
+          example:
+            svelte:
+              load-1k: { runs: 12, renderMs: 51.2, queryMs: 13.9 }
+              load-10k: { runs: 9, renderMs: 371.4, queryMs: 21.6 }
+              update: { runs: 7, renderMs: 44.1, queryMs: null }
+              clear: null
+        runs: { type: integer, description: Total benchmark runs across everything. }
+        browsers:
+          type: object
+          description: Runs per browser family.
+          additionalProperties: { type: integer }
+          example: { Chrome: 120, Safari: 31, Firefox: 12 }
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+
+  responses:
+    BadRequest:
+      description: Invalid JSON, or a body that fails validation.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: Send 1–10 valid events. }
+    CrossOrigin:
+      description: The `Origin` header names a different host than this deployment.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: Cross-origin request. }
+    TooLarge:
+      description: The body is over 8,000 characters.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: Body too large. }
+    AirtableError:
+      description: Airtable rejected the request or was unreachable. The details are in the function logs.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: Could not save to Airtable. }
+    NotConfigured:
+      description: The deployment has no `AIRTABLE_TOKEN` or `AIRTABLE_BASE_ID`.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: Airtable is not configured. }
