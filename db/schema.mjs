@@ -15,6 +15,7 @@ export const BROWSERS = ['Chrome', 'Edge', 'Firefox', 'Safari', 'Other'];
 // Overridable so the table name in .env and in the base stay in sync.
 export const EVENTS_TABLE = process.env.AIRTABLE_TABLE || 'Events';
 export const BENCH_TABLE = 'Benchmarks';
+export const SNAPSHOTS_TABLE = 'Snapshots';
 
 export const EVENTS_FIELDS = {
   name: 'Name',
@@ -41,6 +42,30 @@ export const BENCH_FIELDS = {
   bestRenderMs: 'Best Render ms',
   avgQueryMs: 'Avg Query ms',
   updatedAt: 'Updated At',
+};
+
+// The latest build metrics and lab benchmark: exactly one row per framework,
+// overwritten in place by db/sync.mjs from site/src/data/{metrics,bench}.json.
+// Six rows, so it's a single small request to read.
+export const SNAPSHOT_FIELDS = {
+  key: 'Key',
+  framework: 'Framework',
+  version: 'Version',
+  commit: 'Commit',
+  recordedAt: 'Recorded At',
+  jsGzip: 'JS gzip bytes',
+  jsRaw: 'JS raw bytes',
+  cssGzip: 'CSS gzip bytes',
+  sourceLines: 'Source lines',
+  sourceFiles: 'Source files',
+  configLines: 'Config lines',
+  buildMs: 'Build ms',
+  labRender1k: 'Lab render 1k ms',
+  labRender10k: 'Lab render 10k ms',
+  labUpdate: 'Lab update ms',
+  labClear: 'Lab clear ms',
+  labQuery10k: 'Lab query 10k ms',
+  labBrowser: 'Lab browser',
 };
 
 export const TABLES = [
@@ -75,6 +100,34 @@ export const TABLES = [
       { name: BENCH_FIELDS.bestRenderMs, type: 'number', options: { precision: 1 } },
       { name: BENCH_FIELDS.avgQueryMs, type: 'number', options: { precision: 1 } },
       { name: BENCH_FIELDS.updatedAt, type: 'dateTime', options: utcDateTime },
+    ],
+  },
+  {
+    name: SNAPSHOTS_TABLE,
+    description: 'Latest build metrics and lab benchmark, one row per framework, updated on production deploys.',
+    fields: [
+      { name: SNAPSHOT_FIELDS.key, type: 'singleLineText', description: 'Framework name. Upserts merge on this, so each framework has one row.' },
+      { name: SNAPSHOT_FIELDS.framework, type: 'singleSelect', options: frameworkChoices },
+      { name: SNAPSHOT_FIELDS.version, type: 'singleLineText' },
+      { name: SNAPSHOT_FIELDS.commit, type: 'singleLineText' },
+      { name: SNAPSHOT_FIELDS.recordedAt, type: 'dateTime', options: utcDateTime },
+      ...[
+        SNAPSHOT_FIELDS.jsGzip,
+        SNAPSHOT_FIELDS.jsRaw,
+        SNAPSHOT_FIELDS.cssGzip,
+        SNAPSHOT_FIELDS.sourceLines,
+        SNAPSHOT_FIELDS.sourceFiles,
+        SNAPSHOT_FIELDS.configLines,
+        SNAPSHOT_FIELDS.buildMs,
+      ].map((name) => ({ name, type: 'number', options: { precision: 0 } })),
+      ...[
+        SNAPSHOT_FIELDS.labRender1k,
+        SNAPSHOT_FIELDS.labRender10k,
+        SNAPSHOT_FIELDS.labUpdate,
+        SNAPSHOT_FIELDS.labClear,
+        SNAPSHOT_FIELDS.labQuery10k,
+      ].map((name) => ({ name, type: 'number', options: { precision: 1 } })),
+      { name: SNAPSHOT_FIELDS.labBrowser, type: 'singleLineText' },
     ],
   },
 ];

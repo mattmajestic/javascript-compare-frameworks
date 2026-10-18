@@ -100,3 +100,14 @@ if (withSite) {
   }
   console.log('\n✔ site/dist is ready. Run `npm run preview` to serve it.');
 }
+
+// Production deploys on Vercel also refresh the snapshot of these numbers in
+// Airtable (db/sync.mjs). Never fails the build: the site doesn't need it.
+if (process.env.VERCEL_ENV === 'production' && process.env.AIRTABLE_TOKEN) {
+  try {
+    const { syncSnapshots } = await import('../db/sync.mjs');
+    await syncSnapshots();
+  } catch (err) {
+    console.warn(`⚠ Snapshots not recorded: ${err.message}`);
+  }
+}
