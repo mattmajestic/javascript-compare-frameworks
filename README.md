@@ -68,6 +68,7 @@ The demos write to an [Airtable](https://airtable.com) base, and the site's **Li
 
 - **Events**: every custom countdown added or removed in any demo, with the framework it came from. Removing one marks it `Deleted` rather than erasing the row.
 - **Benchmarks**: real-world benchmark runs from visitors' browsers, kept as running averages per framework × operation × browser (around 120 rows at most, so it fits the free plan).
+- **Snapshots**: a history of the build metrics and lab benchmark (`metrics.json` and `bench.json`). Every production deploy records one row per framework whose numbers changed. Build time alone doesn't count as a change, so the table grows only when something real moves, like a version bump or a bundle size change.
 
 ```
 demo (any framework) ──POST──▶ /api/events/, /api/bench/ ──▶ Airtable
@@ -90,6 +91,12 @@ How it fits together:
 4. Add the same variables in Vercel → Settings → Environment Variables (Production, and Preview if you want PR previews to sync).
 
 To try the full flow locally, run `npx vercel dev`.
+
+### Keeping the data safe
+
+- `npm run db:backup` downloads every table, schema included, to `db/backups/airtable-<time>.json`. That folder is gitignored because it contains the event names visitors typed, so keep backups somewhere private.
+- `npm run db:sync` records a snapshot by hand, e.g. after `npm run bench`. Production deploys do this automatically, and a failed sync never fails the build.
+- Airtable keeps its own revision history per record, and `db/schema.mjs` with `npm run db:migrate` can rebuild the tables in a fresh base.
 
 ## Concept cheat sheet
 
@@ -116,7 +123,7 @@ packages/
   core/       Shared date logic, validation, persistence, framework metadata, CSS (+ unit tests)
 site/         Astro comparison site: side-by-side demos, metrics charts, live data, code comparison
 api/          Vercel functions: /api/events, /api/bench, /api/stats (Airtable)
-db/           Airtable schema as code + migration script
+db/           Airtable schema as code, plus migrate, sync and backup scripts
 e2e/          One Playwright spec run against every demo
 scripts/      build (build + measure + assemble), bench (runtime benchmark), dev (run everything), serve (preview)
 ```
@@ -138,6 +145,8 @@ npm run preview        # serve the assembled site at http://localhost:4173
 npm run e2e            # Playwright suite against the built site (run `npx playwright install chromium` once)
 npm run bench          # run the query & render benchmark in Chromium and update site/src/data/bench.json
 npm run db:migrate     # create/update the Airtable tables from db/schema.mjs (needs .env)
+npm run db:sync        # record a metrics + benchmark snapshot in Airtable
+npm run db:backup      # download every Airtable table to db/backups/ (gitignored)
 ```
 
 ## Deploying
