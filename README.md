@@ -151,7 +151,7 @@ npm run db:backup      # download every Airtable table to db/backups/ (gitignore
 
 ## Deploying
 
-The whole thing deploys to Vercel as **one static site plus three serverless functions**. [`vercel.json`](vercel.json) runs `npm run build` from the repo root and serves `site/dist`, so each demo is available at `/demos/<framework>/`. The functions in [`api/`](api/) are picked up automatically and need the Airtable env vars (see [Live data](#live-data-airtable)). Without them, the site still works and the Live section says its data is unavailable.
+The whole thing is hosted on **Vercel only** and deploys as **one static site plus three serverless functions**. [`vercel.json`](vercel.json) runs `npm run build` from the repo root and serves `site/dist`, so each demo is available at `/demos/<framework>/`. The functions in [`api/`](api/) are picked up automatically and need the Airtable env vars (see [Live data](#live-data-airtable)). Without them, the site still works and the Live section says its data is unavailable.
 
 ## Adding a framework
 
