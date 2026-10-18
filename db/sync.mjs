@@ -1,11 +1,11 @@
-// Record the build metrics and lab benchmark in Airtable's Snapshots table.
+// Keep Airtable's Snapshots table up to date with the latest build metrics
+// and lab benchmark: one row per framework, overwritten in place.
 //
 //   npm run db:sync            manual run (reads .env)
 //   npm run build on Vercel    automatic, production deploys only (see scripts/build.mjs)
 //
-// A framework gets a new row only when one of its measured values changed
-// since its latest snapshot. Build time is recorded but ignored for that
-// check, since it differs on every run.
+// A row is only written when one of its measured values changed. Build time
+// is stored but ignored for that check, since it differs on every run.
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -35,7 +35,7 @@ function snapshotFields(fw, metrics, bench, commit) {
   const m = metrics.frameworks[fw.id];
   const b = bench.frameworks[fw.id] ?? {};
   return {
-    [F.key]: `${fw.name} · ${commit}`,
+    [F.key]: fw.name,
     [F.framework]: fw.name,
     [F.version]: m.version,
     [F.commit]: commit,
@@ -70,24 +70,21 @@ export async function syncSnapshots({ log = console.log } = {}) {
   const bench = readJson('bench.json');
   const commit = currentCommit();
 
-  // Latest snapshot per framework.
-  const latest = new Map();
-  for (const { fields } of await listAll(cfg, SNAPSHOTS_TABLE, [F.framework, F.recordedAt, ...COMPARED])) {
-    const prev = latest.get(fields[F.framework]);
-    if (!prev || (fields[F.recordedAt] ?? '') > (prev[F.recordedAt] ?? '')) latest.set(fields[F.framework], fields);
-  }
+  const current = new Map(
+    (await listAll(cfg, SNAPSHOTS_TABLE, [F.key, ...COMPARED])).map(({ fields }) => [fields[F.key], fields]),
+  );
 
   const now = new Date().toISOString();
   const changed = FRAMEWORKS.map((fw) => snapshotFields(fw, metrics, bench, commit)).filter((fields) => {
-    const prev = latest.get(fields[F.framework]);
+    const prev = current.get(fields[F.key]);
     return !prev || COMPARED.some((k) => (prev[k] ?? null) !== (fields[k] ?? null));
   });
 
   if (changed.length === 0) {
-    log('✔ Snapshots: nothing changed since the last snapshot');
+    log('✔ Snapshots: already up to date');
     return 0;
   }
-  // Upsert on Key, so redeploying the same commit updates its rows instead of adding more.
+  // Upsert on Key (the framework name), so each framework keeps a single row.
   await airtable(cfg, SNAPSHOTS_TABLE, {
     method: 'PATCH',
     body: JSON.stringify({
@@ -96,7 +93,7 @@ export async function syncSnapshots({ log = console.log } = {}) {
       typecast: true,
     }),
   });
-  log(`✔ Snapshots: recorded ${changed.map((f) => f[F.framework]).join(', ')} at ${commit}`);
+  log(`✔ Snapshots: updated ${changed.map((f) => f[F.framework]).join(', ')} (${commit})`);
   return changed.length;
 }
 

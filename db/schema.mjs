@@ -44,9 +44,9 @@ export const BENCH_FIELDS = {
   updatedAt: 'Updated At',
 };
 
-// One row per framework per deploy, but only when a measured value changed,
-// so the table is a history of how each framework's numbers moved over time.
-// Written by db/sync.mjs from site/src/data/{metrics,bench}.json.
+// The latest build metrics and lab benchmark: exactly one row per framework,
+// overwritten in place by db/sync.mjs from site/src/data/{metrics,bench}.json.
+// Six rows, so it's a single small request to read.
 export const SNAPSHOT_FIELDS = {
   key: 'Key',
   framework: 'Framework',
@@ -104,9 +104,9 @@ export const TABLES = [
   },
   {
     name: SNAPSHOTS_TABLE,
-    description: 'Build metrics and lab benchmark per framework, recorded on each production deploy that changed them.',
+    description: 'Latest build metrics and lab benchmark, one row per framework, updated on production deploys.',
     fields: [
-      { name: SNAPSHOT_FIELDS.key, type: 'singleLineText', description: 'framework · commit. Upserts merge on this.' },
+      { name: SNAPSHOT_FIELDS.key, type: 'singleLineText', description: 'Framework name. Upserts merge on this, so each framework has one row.' },
       { name: SNAPSHOT_FIELDS.framework, type: 'singleSelect', options: frameworkChoices },
       { name: SNAPSHOT_FIELDS.version, type: 'singleLineText' },
       { name: SNAPSHOT_FIELDS.commit, type: 'singleLineText' },
